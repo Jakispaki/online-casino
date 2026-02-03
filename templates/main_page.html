@@ -1,50 +1,174 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <ul class="todo-list">
-          {% for todo in todos %}
-            <li class="todo-item">
-              <form action="/complete" method="POST" class="todo-complete-form">
+<div style="margin-top: 30px;">
+  <h2>🎰 Blackjack</h2>
+  
+  <!-- Wallet Balance -->
+  <div class="alert alert-info" style="margin-top: 20px;">
+    <strong>Wallet Balance:</strong> <span id="balance">${{ "%.2f"|format(balance) }}</span>
+  </div>
 
-                <input type="hidden" name="id" value="{{ todo.id }}">
+  <!-- Bet Section -->
+  <div id="bet-section" class="panel panel-default" style="margin-top: 20px;">
+    <div class="panel-body">
+      <label for="bet">Bet Amount ($):</label>
+      <input type="number" class="form-control" id="bet" value="10" min="1" step="0.01" style="width: 150px;">
+      <button class="btn btn-primary btn-lg" style="margin-top: 10px;" onclick="startGame()">Play</button>
+    </div>
+  </div>
 
-                <!-- Checkbox triggert Submit -->
-                <input
-                  type="checkbox"
-                  class="todo-checkbox"
-                  id="todo-{{ todo.id }}"
-                  name="complete"
-                  value="1"
-                  onchange="this.form.submit()">
-
-                <label for="todo-{{ todo.id }}" class="todo-content">
-                  {{ todo.content }}
-                  <span class="todo-date">📅 {{ todo.due.strftime('%d.%m.%Y %H:%M') }}</span>
-                </label>
-              </form>
-            </li>
-          {% else %}
-            <div>Nichts zu tun🎉</div>
-          {% endfor %}
-        </ul>
-
-      <div class="todo-form">
-        <form action="." method="POST">
-          <div class="form-group">
-            <label for="contents">TODO</label>
-            <input type="text" id="contents" name="contents" class="form-control"
-              placeholder="Neues TODO eingeben…" required />
-          </div>
-
-          <div class="form-group">
-            <label for="due_at">Fällig am</label>
-            <input id="due_at" name="due_at" type="datetime-local" class="form-control" required>
-            <p class="help-block">Wähle Datum & Uhrzeit (z. B. 07.11.2025 14:30).</p>
-          </div>
-
-          <button type="submit" class="btn btn-primary">Hinzufügen</button>
-        </form>
+  <!-- Game Section (hidden) -->
+  <div id="game-section" style="display: none; margin-top: 30px;">
+    
+    <!-- Dealer -->
+    <div style="background: green; color: white; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h4>Dealer</h4>
+      <div id="dealer-cards" style="display: flex; gap: 15px; font-size: 40px; margin: 15px 0;">
       </div>
-{% endblock %}
+      <p style="font-size: 18px;">Value: <strong id="dealer-value">?</strong></p>
+    </div>
 
+    <!-- Player -->
+    <div style="background: #f0f0f0; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+      <h4>Player (You)</h4>
+      <div id="player-cards" style="display: flex; gap: 15px; font-size: 40px; margin: 15px 0;">
+      </div>
+      <p style="font-size: 18px;">Value: <strong id="player-value">0</strong></p>
+    </div>
+
+    <!-- Status -->
+    <div id="game-status" style="font-size: 18px; font-weight: bold; margin-bottom: 20px;"></div>
+
+    <!-- Action Buttons -->
+    <div id="action-buttons">
+      <button class="btn btn-success btn-lg" onclick="playerHit()" style="margin-right: 10px;">Hit</button>
+      <button class="btn btn-warning btn-lg" onclick="playerStand()">Stand</button>
+    </div>
+
+    <!-- Play Again -->
+    <div id="play-again" style="display: none; margin-top: 20px;">
+      <button class="btn btn-primary btn-lg" onclick="location.reload()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentSessionId = null;
+
+function startGame() {
+  const bet = parseFloat(document.getElementById('bet').value);
+  
+  if (isNaN(bet) || bet <= 0) {
+    alert('Enter a valid bet amount');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('bet', bet);
+
+  fetch('/blackjack/new', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        alert('Error: ' + data.error);
+        return;
+      }
+      currentSessionId = data.session_id;
+      console.log('Game started, session_id:', currentSessionId);
+      updateDisplay(data);
+      document.getElementById('bet-section').style.display = 'none';
+      document.getElementById('game-section').style.display = 'block';
+    })
+    .catch(e => {
+      console.error('Error:', e);
+      alert('Error starting game: ' + e);
+    });
+}
+
+function playerHit() {
+  if (!currentSessionId) {
+    alert('No active game');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('session_id', currentSessionId);
+
+  fetch('/blackjack/hit', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+      console.log('Hit response:', data);
+      updateDisplay(data);
+      if (data.finished) {
+        document.getElementById('action-buttons').style.display = 'none';
+        document.getElementById('play-again').style.display = 'block';
+      }
+    })
+    .catch(e => console.error('Error:', e));
+}
+
+function playerStand() {
+  if (!currentSessionId) {
+    alert('No active game');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('session_id', currentSessionId);
+
+  fetch('/blackjack/stand', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+      console.log('Stand response:', data);
+      updateDisplay(data);
+      document.getElementById('action-buttons').style.display = 'none';
+      document.getElementById('play-again').style.display = 'block';
       
+      // Refresh balance after 2 seconds
+      setTimeout(() => location.reload(), 2000);
+    })
+    .catch(e => console.error('Error:', e));
+}
+
+function updateDisplay(data) {
+  // Display dealer cards
+  const dealerDiv = document.getElementById('dealer-cards');
+  dealerDiv.innerHTML = data.dealer_hand.map(card => {
+    if (card === '??') return '<div style="background: blue; width: 60px; height: 80px; border-radius: 5px;"></div>';
+    return '<div style="background: white; padding: 5px; border: 2px solid black; border-radius: 5px; width: 60px; text-align: center;">' + card + '</div>';
+  }).join('');
+  document.getElementById('dealer-value').textContent = data.dealer_value;
+
+  // Display player cards
+  const playerDiv = document.getElementById('player-cards');
+  playerDiv.innerHTML = data.player_hand.map(card => {
+    return '<div style="background: white; padding: 5px; border: 2px solid black; border-radius: 5px; width: 60px; text-align: center;">' + card + '</div>';
+  }).join('');
+  document.getElementById('player-value').textContent = data.player_value;
+
+  // Display result if finished
+  if (data.finished) {
+    let resultText = '';
+    let resultClass = '';
+    
+    if (data.result === 'player_bust') {
+      resultText = '💥 BUST! Game Over!';
+      resultClass = 'danger';
+    } else if (data.result === 'player_win') {
+      resultText = '🎉 YOU WIN!';
+      resultClass = 'success';
+    } else if (data.result === 'dealer_win') {
+      resultText = '😞 Dealer Wins';
+      resultClass = 'warning';
+    } else if (data.result === 'push') {
+      resultText = '🤝 Push - Tie!';
+      resultClass = 'info';
+    }
+    
+    document.getElementById('game-status').innerHTML = 
+      '<div class="alert alert-' + resultClass + '" style="font-size: 20px; padding: 15px;">' + resultText + '</div>';
+  }
+}
+</script>
+{% endblock %}
