@@ -134,8 +134,8 @@ function playerStand() {
 function updateDisplay(data) {
   // Display dealer cards
   const dealerDiv = document.getElementById('dealer-cards');
-  dealerDiv.innerHTML = data.dealer_hand.map(card => {
-    if (card === '??') return '<div style="background: blue; width: 60px; height: 80px; border-radius: 5px;"></div>';
+  dealerDiv.innerHTML = data.dealer_hand.map((card, index) => {
+    if (index > 0 && card === '??') return '<div style="background: blue; width: 60px; height: 80px; border-radius: 5px;"></div>';
     return '<div style="background: white; padding: 5px; border: 2px solid black; border-radius: 5px; width: 60px; text-align: center;">' + card + '</div>';
   }).join('');
   document.getElementById('dealer-value').textContent = data.dealer_value;
