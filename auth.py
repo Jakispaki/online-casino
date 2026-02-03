@@ -84,17 +84,17 @@ def register_user(username, password):
         return False
 
     hashed = generate_password_hash(password)
-    try:
-        db_write(
-            "INSERT INTO users (username, password) VALUES (%s, %s)",
-            (username, hashed)
-        )
+    success = db_write(
+        "INSERT INTO users (username, password) VALUES (%s, %s)",
+        (username, hashed)
+    )
+    
+    if success:
         logger.info("register_user(): User '%s' erfolgreich angelegt", username)
-    except Exception:
-        logger.exception("Fehler beim Anlegen von User '%s'", username)
+        return True
+    else:
+        logger.error("Fehler beim Anlegen von User '%s'", username)
         return False
-
-    return True
 
 
 def authenticate(username, password):

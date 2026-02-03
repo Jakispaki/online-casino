@@ -49,6 +49,11 @@ def db_write(sql, params=None):
         cur.execute(sql, params or ())
         conn.commit()
         print("db_write OK:", sql, params)  # DEBUG
+        return True
+    except Exception as e:
+        print("db_write ERROR:", sql, params, str(e))
+        conn.rollback()
+        return False
     finally:
         try:
             cur.close()
