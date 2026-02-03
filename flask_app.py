@@ -61,7 +61,7 @@ def login():
 
         if user:
             login_user(user)
-            return redirect(url_for("index"))
+            return redirect(url_for("blackjack"))
 
         error = "Benutzername oder Passwort ist falsch."
 
