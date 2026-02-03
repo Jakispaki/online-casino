@@ -131,7 +131,7 @@ def blackjack():
     else:
         balance = float(wallet["balance"])
     
-    return render_template("main_page.html", balance=balance)
+    return render_template("blackjack.html", balance=balance)
 
 
 @app.post("/blackjack/new")
