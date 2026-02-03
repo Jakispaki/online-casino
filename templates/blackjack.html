@@ -124,9 +124,6 @@ function playerStand() {
       updateDisplay(data);
       document.getElementById('action-buttons').style.display = 'none';
       document.getElementById('play-again').style.display = 'block';
-      
-      // Refresh balance after 2 seconds
-      setTimeout(() => location.reload(), 2000);
     })
     .catch(e => console.error('Error:', e));
 }
@@ -135,7 +132,7 @@ function updateDisplay(data) {
   // Display dealer cards
   const dealerDiv = document.getElementById('dealer-cards');
   dealerDiv.innerHTML = data.dealer_hand.map((card, index) => {
-    if (index > 0 && card === '??') return '<div style="background: blue; width: 60px; height: 80px; border-radius: 5px;"></div>';
+    if (card === '??') return '<div style="background: blue; width: 60px; height: 80px; border-radius: 5px;"></div>';
     const isRed = card.includes('♥') || card.includes('♦');
     return '<div style="background: white; padding: 5px; border: 2px solid black; border-radius: 5px; width: 60px; text-align: center; color: ' + (isRed ? 'red' : 'black') + '; font-weight: bold;">' + card + '</div>';
   }).join('');
