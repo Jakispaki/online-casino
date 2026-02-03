@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-top: 30px;">
+  <div class="row">
+    <div class="col-md-8">
+      <h2>Blackjack</h2>
+      
+      <!-- Wallet Balance -->
+      <div class="alert alert-info" style="margin-top: 20px;">
+        <strong>Wallet Balance:</strong> <span id="balance">${{ "%.2f"|format(balance) }}</span>
+      </div>
+
+      <!-- Bet Input (only show when no game running) -->
+      <div id="bet-section" class="panel panel-default" style="margin-top: 20px;">
+        <div class="panel-body">
+          <form id="new-game-form">
+            <div class="form-group">
+              <label for="bet">Bet Amount:</label>
+              <div class="input-group">
+                <span class="input-group-addon">$</span>
+                <input type="number" class="form-control" id="bet" name="bet" value="10" min="1" step="0.01" required>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-lg" onclick="startNewGame()">Play</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Game Area (hidden until game starts) -->
+      <div id="game-section" class="panel panel-default" style="display: none; margin-top: 20px;">
+        <div class="panel-body">
+          <input type="hidden" id="session-id">
+          
+          <!-- Dealer Hand -->
+          <div style="margin-bottom: 30px;">
+            <h4>Dealer</h4>
+            <div id="dealer-cards" style="display: flex; gap: 10px; font-size: 30px;">
+            </div>
+            <p>Value: <strong id="dealer-value">?</strong></p>
+          </div>
+
+          <!-- Player Hand -->
+          <div style="margin-bottom: 30px;">
+            <h4>Player</h4>
+            <div id="player-cards" style="display: flex; gap: 10px; font-size: 30px;">
+            </div>
+            <p>Value: <strong id="player-value">0</strong></p>
+          </div>
+
+          <!-- Game Status -->
+          <div id="game-status" style="margin-bottom: 20px;"></div>
+
+          <!-- Action Buttons -->
+          <div id="action-buttons" style="margin-top: 20px;">
+            <button type="button" class="btn btn-success" onclick="playerHit()">Hit</button>
+            <button type="button" class="btn btn-warning" onclick="playerStand()">Stand</button>
+          </div>
+
+          <!-- Play Again Button (hidden until game ends) -->
+          <div id="play-again-section" style="display: none; margin-top: 20px;">
+            <button type="button" class="btn btn-primary btn-lg" onclick="playAgain()">Play Again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar: Transaction History -->
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">Recent Games</h4>
+        </div>
+        <div class="panel-body">
+          <ul id="transaction-list" style="list-style: none; padding: 0;">
+            <!-- Will be populated by JavaScript -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CARD_SYMBOLS = {
+  '♠': '♠', '♥': '♥', '♦': '♦', '♣': '♣'
+};
+
+function displayCard(card) {
+  return card.replace(/([♠♥♦♣])/g, '<span style="color: red;">$1</span>');
+}
+
+function startNewGame() {
+  const bet = document.getElementById('bet').value;
+  
+  const form = new FormData();
+  form.append('bet', bet);
+  
+  fetch('/blackjack/new', {
+    method: 'POST',
+    body: form
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) {
+      alert('Error: ' + data.error);
+      return;
+    }
+    
+    // Store session ID
+    document.getElementById('session-id').value = data.session_id;
+    
+    updateGameDisplay(data);
+    document.getElementById('bet-section').style.display = 'none';
+    document.getElementById('game-section').style.display = 'block';
+    document.getElementById('action-buttons').style.display = 'block';
+    document.getElementById('play-again-section').style.display = 'none';
+  })
+  .catch(e => console.error(e));
+}
+
+function playerHit() {
+  const sessionId = getLatestSessionId();
+  
+  const form = new FormData();
+  form.append('session_id', sessionId);
+  
+  fetch('/blackjack/hit', {
+    method: 'POST',
+    body: form
+  })
+  .then(r => r.json())
+  .then(data => {
+    updateGameDisplay(data);
+    
+    if (data.finished) {
+      document.getElementById('action-buttons').style.display = 'none';
+      document.getElementById('play-again-section').style.display = 'block';
+    }
+  })
+  .catch(e => console.error(e));
+}
+
+function playerStand() {
+  const sessionId = getLatestSessionId();
+  
+  const form = new FormData();
+  form.append('session_id', sessionId);
+  
+  fetch('/blackjack/stand', {
+    method: 'POST',
+    body: form
+  })
+  .then(r => r.json())
+  .then(data => {
+    updateGameDisplay(data);
+    document.getElementById('action-buttons').style.display = 'none';
+    document.getElementById('play-again-section').style.display = 'block';
+    
+    // Refresh balance
+    location.reload();
+  })
+  .catch(e => console.error(e));
+}
+
+function updateGameDisplay(data) {
+  // Display player cards
+  const playerCardsDiv = document.getElementById('player-cards');
+  playerCardsDiv.innerHTML = data.player_hand.map(card => 
+    `<div style="background: white; padding: 10px; border: 1px solid black; border-radius: 5px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center;">${card}</div>`
+  ).join('');
+  document.getElementById('player-value').textContent = data.player_value;
+  
+  // Display dealer cards
+  const dealerCardsDiv = document.getElementById('dealer-cards');
+  dealerCardsDiv.innerHTML = data.dealer_hand.map(card => {
+    if (card === '??') {
+      return `<div style="background: blue; padding: 10px; border: 1px solid black; border-radius: 5px; width: 60px; height: 80px;"></div>`;
+    }
+    return `<div style="background: white; padding: 10px; border: 1px solid black; border-radius: 5px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center;">${card}</div>`;
+  }).join('');
+  document.getElementById('dealer-value').textContent = data.dealer_value;
+  
+  // Display result if finished
+  if (data.finished) {
+    let resultText = '';
+    let resultClass = '';
+    
+    if (data.result === 'player_bust') {
+      resultText = '🚨 BUST! You went over 21!';
+      resultClass = 'danger';
+    } else if (data.result === 'player_win') {
+      resultText = '🎉 YOU WIN!';
+      resultClass = 'success';
+    } else if (data.result === 'dealer_win') {
+      resultText = '😞 Dealer wins';
+      resultClass = 'warning';
+    } else if (data.result === 'push') {
+      resultText = '🤝 Push - Tie!';
+      resultClass = 'info';
+    }
+    
+    document.getElementById('game-status').innerHTML = 
+      `<div class="alert alert-${resultClass}" style="font-size: 18px; font-weight: bold;">${resultText}</div>`;
+  }
+}
+
+function playAgain() {
+  document.getElementById('bet-section').style.display = 'block';
+  document.getElementById('game-section').style.display = 'none';
+  document.getElementById('game-status').innerHTML = '';
+  document.getElementById('bet').value = 10;
+}
+
+function getLatestSessionId() {
+  return document.getElementById('session-id').value;
+}
+</script>
+{% endblock %}

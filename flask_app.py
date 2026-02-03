@@ -186,7 +186,9 @@ def blackjack_new():
         (current_user.id, -bet, "bet", f"Blackjack bet - Session {session['id']}")
     )
     
-    return jsonify(game.state())
+    state = game.state()
+    state['session_id'] = session['id']
+    return jsonify(state)
 
 
 @app.post("/blackjack/hit")
