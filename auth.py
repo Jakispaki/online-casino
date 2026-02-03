@@ -90,10 +90,11 @@ def register_user(username, password):
             (username, hashed)
         )
         logger.info("register_user(): User '%s' erfolgreich angelegt", username)
-        return True
-    except Exception as e:
-        logger.exception("Fehler beim Anlegen von User '%s': %s", username, str(e))
+    except Exception:
+        logger.exception("Fehler beim Anlegen von User '%s'", username)
         return False
+
+    return True
 
 
 def authenticate(username, password):
@@ -107,6 +108,6 @@ def authenticate(username, password):
     if check_password_hash(user.password, password):
         logger.info("authenticate(): Passwort korrekt für '%s'", username)
         return user
-    else:
-        logger.warning("authenticate(): falsches Passwort für '%s'", username)
-        return None
+   
+    logger.warning("authenticate(): falsches Passwort für '%s'", username)
+    return None
