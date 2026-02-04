@@ -112,6 +112,20 @@
     padding: 18px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
   }
+  .xp-card h3 {
+    margin-top: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .xp-list {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: #cdd2e2;
+    font-size: 13px;
+  }
+  .xp-list li {
+    margin-bottom: 6px;
+  }
   .account-row {
     margin-bottom: 12px;
   }
@@ -168,6 +182,17 @@
   </div>
   <div class="save-status" id="save-status" data-i18n="ui.settingsSaved">Settings saved.</div>
   <p class="settings-note" data-i18n="settings.note">Settings update the table visuals immediately on the Blackjack page.</p>
+
+  <div class="settings-card xp-card">
+    <h3 data-i18n="settings.xpTitle">XP & Leveling</h3>
+    <ul class="xp-list">
+      <li data-i18n="settings.xpGames">+10 XP per game played.</li>
+      <li data-i18n="settings.xpWins">+50 XP per win.</li>
+      <li data-i18n="settings.xpBonus">Bonus XP from Lucky Wheel rewards.</li>
+      <li data-i18n="settings.levelFormula">Level = floor(XP / 500) + 1.</li>
+      <li data-i18n="settings.levelNeed">To reach level N you need (N-1)*500 XP.</li>
+    </ul>
+  </div>
 
   <div class="account-card">
     <h3 data-i18n="ui.accountSettings">Account Settings</h3>
