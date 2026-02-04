@@ -10,10 +10,11 @@ login_manager = LoginManager()
 
 
 class User(UserMixin):
-    def __init__(self, id, username, password):
+    def __init__(self, id, username, password, email=None):
         self.id = id
         self.username = username
         self.password = password
+        self.email = email
 
     @staticmethod
     def get_by_id(user_id):
@@ -30,7 +31,7 @@ class User(UserMixin):
             return None
 
         if row:
-            return User(row["id"], row["username"], row["password"])
+            return User(row["id"], row["username"], row["password"], row.get("email"))
         else:
             logger.warning("User.get_by_id(): kein User mit id=%s gefunden", user_id)
             return None
@@ -50,9 +51,29 @@ class User(UserMixin):
             return None
 
         if row:
-            return User(row["id"], row["username"], row["password"])
+            return User(row["id"], row["username"], row["password"], row.get("email"))
         else:
             logger.info("User.get_by_username(): kein User mit username=%s", username)
+            return None
+
+    @staticmethod
+    def get_by_email(email):
+        logger.debug("User.get_by_email() aufgerufen mit email=%s", email)
+        try:
+            row = db_read(
+                "SELECT * FROM users WHERE email = %s",
+                (email,),
+                single=True
+            )
+            logger.debug("User.get_by_email() DB-Ergebnis: %r", row)
+        except Exception:
+            logger.exception("Fehler bei User.get_by_email(%s)", email)
+            return None
+
+        if row:
+            return User(row["id"], row["username"], row["password"], row.get("email"))
+        else:
+            logger.info("User.get_by_email(): kein User mit email=%s", email)
             return None
 
 
@@ -75,7 +96,7 @@ def load_user(user_id):
 
 
 # Helpers
-def register_user(username, password):
+def register_user(username, email, password):
     logger.info("register_user(): versuche neuen User '%s' anzulegen", username)
 
     existing = User.get_by_username(username)
@@ -83,10 +104,15 @@ def register_user(username, password):
         logger.warning("register_user(): Username '%s' existiert bereits", username)
         return False
 
+    existing_email = User.get_by_email(email)
+    if existing_email:
+        logger.warning("register_user(): Email '%s' existiert bereits", email)
+        return False
+
     hashed = generate_password_hash(password)
     success = db_write(
-        "INSERT INTO users (username, password) VALUES (%s, %s)",
-        (username, hashed)
+        "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+        (username, email, hashed)
     )
     
     if success:
@@ -99,7 +125,7 @@ def register_user(username, password):
 
 def authenticate(username, password):
     logger.info("authenticate(): Login-Versuch für '%s'", username)
-    user = User.get_by_username(username)
+    user = User.get_by_email(username) if "@" in username else User.get_by_username(username)
 
     if not user:
         logger.warning("authenticate(): kein User mit username='%s' gefunden", username)

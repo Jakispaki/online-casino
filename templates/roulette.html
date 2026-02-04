@@ -379,10 +379,10 @@
 <div class="roulette-wrapper">
   <div class="casino-topbar">
     <div class="casino-title">Royal Ace Roulette</div>
-    <div class="balance-pill">Balance: $<span id="balance">{{ "%.2f"|format(balance) }}</span></div>
+    <div class="balance-pill"><span data-i18n="ui.balance">Balance</span>: $<span id="balance">{{ "%.2f"|format(balance) }}</span></div>
     <div class="topbar-actions">
-      <a class="icon-btn" data-i18n="nav.settings" href="{{ url_for('settings') }}">Settings</a>
-      <a class="icon-btn" data-i18n="nav.help" href="{{ url_for('help_page') }}">Help</a>
+      <a class="icon-btn" data-i18n="ui.settings" href="{{ url_for('settings') }}">Settings</a>
+      <a class="icon-btn" data-i18n="ui.help" href="{{ url_for('help_page') }}">Help</a>
     </div>
   </div>
 
@@ -471,13 +471,10 @@
   <p class="footer-note">18+ only. Please gamble responsibly. This is a demo environment.</p>
 </div>
 
-<div class="tutorial-overlay" id="tutorial-overlay">
+  <div class="tutorial-overlay" id="tutorial-overlay">
   <div class="tutorial-card">
-    <h3>Welcome to Roulette</h3>
+    <h3 id="tutorial-title">Welcome to Roulette</h3>
     <p id="tutorial-text">Select a chip value, then tap a bet area.</p>
-    <label style="display:block; margin-top:8px; font-size:12px; color:#9aa2ba;">
-      <input type="checkbox" id="tutorial-disable"> Do not show again
-    </label>
     <div class="tutorial-actions">
       <button class="btn-skip" id="tutorial-skip">Skip</button>
       <button class="btn-tutorial" id="tutorial-next">Next</button>
@@ -537,6 +534,7 @@
 
   applySettings();
   renderWheelNumbers();
+  messageBox.textContent = window.getTranslation('roulette.placeBets', 'Place your bets.');
 
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
@@ -560,7 +558,7 @@
   function updateCurrentBets() {
     const entries = Object.entries(bets);
     if (!entries.length) {
-      currentBetsBox.textContent = 'No bets placed.';
+      currentBetsBox.textContent = window.getTranslation('roulette.noBets', 'No bets placed.');
       return;
     }
     currentBetsBox.innerHTML = entries.map(([k, v]) => {
@@ -578,7 +576,7 @@
       cell.querySelector('.bet-amount').textContent = '';
     });
     updateCurrentBets();
-    messageBox.textContent = 'Place your bets.';
+    messageBox.textContent = window.getTranslation('roulette.placeBets', 'Place your bets.');
     resultBox.style.display = 'none';
   }
 
@@ -591,7 +589,7 @@
     });
 
     if (!betEntries.length) {
-      messageBox.textContent = 'Please place at least one bet.';
+      messageBox.textContent = window.getTranslation('roulette.needBet', 'Please place at least one bet.');
       return;
     }
 
@@ -618,13 +616,13 @@
         const winText = data.payout > 0 ? `You win $${data.payout.toFixed(2)}` : 'No win this round.';
         resultBox.style.display = 'block';
         resultBox.innerHTML = `Winning number: <span class="winning-number">${data.result_number}</span> (${data.result_color}). ${winText}`;
-        messageBox.textContent = 'Place your bets for the next round.';
+        messageBox.textContent = window.getTranslation('roulette.nextRound', 'Place your bets for the next round.');
 
         highlightWinners(data);
         pushHistory(data.result_number, data.result_color);
       })
       .catch(() => {
-        messageBox.textContent = 'Spin failed. Try again.';
+        messageBox.textContent = window.getTranslation('roulette.spinFailed', 'Spin failed. Try again.');
       });
   }
 
@@ -658,43 +656,55 @@
   document.getElementById('spin-btn').addEventListener('click', spinWheel);
 </script>
 <script>
-  const tutorialKey = 'tutorial:roulette';
-  const tutorialSteps = [
-    'Select a chip value, then tap a bet area.',
-    'Use the chips bar to change your bet size.',
-    'Press Spin Wheel to start the round.',
-    'Winning bets glow and your balance updates.'
-  ];
+  const SHOW_TUTORIAL = {{ 'true' if show_tutorial else 'false' }};
+  const tutorialStepsByLang = {
+    en: [
+      'Select a chip value, then tap a bet area.',
+      'Use the chips bar to change your bet size.',
+      'Press Spin Wheel to start the round.',
+      'Winning bets glow and your balance updates.'
+    ],
+    de: [
+      'Wahle einen Chip und tippe auf ein Einsatzfeld.',
+      'Nutze die Chips unten, um deinen Einsatz zu andern.',
+      'Drucke Spin Wheel, um die Runde zu starten.',
+      'Gewinnende Einsatze leuchten auf und dein Guthaben aktualisiert sich.'
+    ]
+  };
   let tutorialIndex = 0;
 
   const overlay = document.getElementById('tutorial-overlay');
   const text = document.getElementById('tutorial-text');
   const nextBtn = document.getElementById('tutorial-next');
   const skipBtn = document.getElementById('tutorial-skip');
-  const disableBox = document.getElementById('tutorial-disable');
+  const title = document.getElementById('tutorial-title');
 
   function showTutorial() {
-    text.textContent = tutorialSteps[tutorialIndex];
+    const lang = window.currentLang || 'en';
+    const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
+    title.textContent = lang === 'de' ? 'Willkommen bei Roulette' : 'Welcome to Roulette';
+    text.textContent = steps[tutorialIndex];
+    skipBtn.textContent = window.getTranslation('tutorial.skip', 'Skip');
+    nextBtn.textContent = window.getTranslation('tutorial.next', 'Next');
     overlay.style.display = 'flex';
   }
 
   function closeTutorial() {
     overlay.style.display = 'none';
-    if (disableBox.checked) {
-      localStorage.setItem(tutorialKey, 'disabled');
-    }
   }
 
-  if (localStorage.getItem(tutorialKey) !== 'disabled') {
+  if (SHOW_TUTORIAL) {
     showTutorial();
   }
 
   nextBtn.addEventListener('click', () => {
     tutorialIndex += 1;
-    if (tutorialIndex >= tutorialSteps.length) {
+    const lang = window.currentLang || 'en';
+    const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
+    if (tutorialIndex >= steps.length) {
       closeTutorial();
     } else {
-      text.textContent = tutorialSteps[tutorialIndex];
+      text.textContent = steps[tutorialIndex];
     }
   });
 

@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, url_for, jsonify
+from flask import Flask, redirect, render_template, request, url_for, jsonify, session
 from datetime import datetime, date, timedelta
 from dotenv import load_dotenv
 import os
@@ -9,6 +9,7 @@ import json
 from db import db_read, db_write
 from auth import login_manager, authenticate, register_user
 from blackjack_engine import BlackjackGame, hand_value
+from werkzeug.security import generate_password_hash, check_password_hash
 import random
 from flask_login import login_user, logout_user, login_required, current_user
 import logging
@@ -79,12 +80,15 @@ def register():
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         dob_str = request.form.get("date_of_birth", "")
         age_confirm = request.form.get("age_confirm")
         privacy_confirm = request.form.get("privacy_confirm")
 
-        if not age_confirm or not privacy_confirm:
+        if not email:
+            error = "Please enter a valid email address."
+        elif not age_confirm or not privacy_confirm:
             error = "Please confirm the 18+ notice and Privacy Policy."
         else:
             try:
@@ -97,11 +101,12 @@ def register():
                 error = "Please enter a valid date of birth."
 
         if error is None:
-            ok = register_user(username, password)
+            ok = register_user(username, email, password)
             if ok:
+                session["show_tutorial"] = True
                 return redirect(url_for("login"))
 
-            error = "Username already exists."
+            error = "Username or email already exists."
 
     return render_template(
         "register.html",
@@ -137,7 +142,8 @@ def blackjack():
     else:
         balance = float(wallet["balance"])
     
-    return render_template("blackjack.html", balance=balance)
+    show_tutorial = session.pop("show_tutorial", False)
+    return render_template("blackjack.html", balance=balance, show_tutorial=show_tutorial)
 
 
 @app.route("/deposit", methods=["GET", "POST"])
@@ -178,7 +184,17 @@ def deposit():
 @app.route("/settings", methods=["GET"])
 @login_required
 def settings():
-    return render_template("settings.html")
+    status = request.args.get("status")
+    message = None
+    if status == "success":
+        message = "Account updated successfully."
+    elif status == "error":
+        message = "Could not update account. Check your details."
+    elif status == "exists":
+        message = "Username or email already exists."
+    elif status == "password":
+        message = "Current password is incorrect."
+    return render_template("settings.html", account_status=message)
 
 
 def _wallet_balance(user_id):
@@ -458,13 +474,47 @@ def roulette():
 
     most_wins = sum(1 for s in combined if s.get("win"))
 
+    show_tutorial = session.pop("show_tutorial", False)
     return render_template(
         "roulette.html",
         balance=balance,
         best_balance=best_balance,
         max_streak=max_streak,
         most_wins=most_wins,
+        show_tutorial=show_tutorial,
     )
+
+
+@app.post("/account/update")
+@login_required
+def account_update():
+    current_password = request.form.get("current_password", "")
+    row = db_read("SELECT id, username, email, password FROM users WHERE id=%s", (current_user.id,), single=True)
+    if not row or not check_password_hash(row["password"], current_password):
+        return redirect(url_for("settings", status="password"))
+
+    new_username = request.form.get("username", "").strip()
+    new_email = request.form.get("email", "").strip().lower()
+    new_password = request.form.get("new_password", "").strip()
+
+    if new_username and new_username != row["username"]:
+        existing = db_read("SELECT id FROM users WHERE username=%s", (new_username,), single=True)
+        if existing:
+            return redirect(url_for("settings", status="exists"))
+        db_write("UPDATE users SET username=%s WHERE id=%s", (new_username, current_user.id))
+        current_user.username = new_username
+
+    if new_email and new_email != (row.get("email") or ""):
+        existing = db_read("SELECT id FROM users WHERE email=%s", (new_email,), single=True)
+        if existing:
+            return redirect(url_for("settings", status="exists"))
+        db_write("UPDATE users SET email=%s WHERE id=%s", (new_email, current_user.id))
+
+    if new_password:
+        hashed = generate_password_hash(new_password)
+        db_write("UPDATE users SET password=%s WHERE id=%s", (hashed, current_user.id))
+
+    return redirect(url_for("settings", status="success"))
 
 
 @app.post("/roulette/spin")

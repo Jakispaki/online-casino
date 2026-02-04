@@ -86,7 +86,6 @@
               <select class="lang-select" id="lang-select" aria-label="Language">
                 <option value="en">EN</option>
                 <option value="de">DE</option>
-                <option value="es">ES</option>
               </select>
             </li>
           </ul>
@@ -110,7 +109,48 @@
           'nav.help': 'Help',
           'nav.logout': 'Logout',
           'nav.login': 'Login',
-          'nav.register': 'Register'
+          'nav.register': 'Register',
+          'ui.balance': 'Balance',
+          'ui.settings': 'Settings',
+          'ui.addFunds': 'Add funds',
+          'ui.roulette': 'Roulette',
+          'ui.help': 'Help',
+          'ui.backTable': 'Back to table',
+          'ui.gameSettings': 'Game Settings',
+          'ui.accountSettings': 'Account Settings',
+          'ui.sound': 'Sound effects',
+          'ui.dealerSpeed': 'Dealer speed',
+          'ui.tableTheme': 'Table theme',
+          'ui.cardSize': 'Card size',
+          'ui.reset': 'Reset',
+          'ui.save': 'Save',
+          'ui.username': 'Username',
+          'ui.email': 'Email',
+          'ui.currentPassword': 'Current password',
+          'ui.newPassword': 'New password',
+          'ui.settingsSaved': 'Settings saved.',
+          'ui.settingsReset': 'Settings reset to default.',
+          'stats.title': 'Player statistics',
+          'stats.total': 'Total games',
+          'stats.wins': 'Wins',
+          'stats.losses': 'Losses',
+          'stats.pushes': 'Pushes',
+          'stats.winrate': 'Win rate',
+          'stats.progression': 'Progression',
+          'stats.daily': 'Daily challenges',
+          'stats.events': 'Event challenges',
+          'stats.performance': 'Performance',
+          'stats.bests': 'Personal bests',
+          'stats.achievements': 'Achievements',
+          'stats.leaderboard': 'Leaderboard'
+          ,
+          'tutorial.skip': 'Skip',
+          'tutorial.next': 'Next',
+          'roulette.placeBets': 'Place your bets.',
+          'roulette.nextRound': 'Place your bets for the next round.',
+          'roulette.noBets': 'No bets placed.',
+          'roulette.needBet': 'Please place at least one bet.',
+          'roulette.spinFailed': 'Spin failed. Try again.'
         },
         de: {
           'nav.blackjack': 'Blackjack',
@@ -121,18 +161,48 @@
           'nav.help': 'Hilfe',
           'nav.logout': 'Logout',
           'nav.login': 'Login',
-          'nav.register': 'Registrieren'
-        },
-        es: {
-          'nav.blackjack': 'Blackjack',
-          'nav.roulette': 'Ruleta',
-          'nav.deposit': 'Depositar',
-          'nav.stats': 'Estadisticas',
-          'nav.settings': 'Ajustes',
-          'nav.help': 'Ayuda',
-          'nav.logout': 'Salir',
-          'nav.login': 'Entrar',
-          'nav.register': 'Registrarse'
+          'nav.register': 'Registrieren',
+          'ui.balance': 'Guthaben',
+          'ui.settings': 'Einstellungen',
+          'ui.addFunds': 'Einzahlen',
+          'ui.roulette': 'Roulette',
+          'ui.help': 'Hilfe',
+          'ui.backTable': 'Zuruck zum Tisch',
+          'ui.gameSettings': 'Spieleinstellungen',
+          'ui.accountSettings': 'Konto Einstellungen',
+          'ui.sound': 'Soundeffekte',
+          'ui.dealerSpeed': 'Dealer Tempo',
+          'ui.tableTheme': 'Tisch Design',
+          'ui.cardSize': 'Kartengrosse',
+          'ui.reset': 'Zurucksetzen',
+          'ui.save': 'Speichern',
+          'ui.username': 'Benutzername',
+          'ui.email': 'E-Mail',
+          'ui.currentPassword': 'Aktuelles Passwort',
+          'ui.newPassword': 'Neues Passwort',
+          'ui.settingsSaved': 'Einstellungen gespeichert.',
+          'ui.settingsReset': 'Einstellungen zuruckgesetzt.',
+          'stats.title': 'Spielerstatistiken',
+          'stats.total': 'Spiele gesamt',
+          'stats.wins': 'Siege',
+          'stats.losses': 'Niederlagen',
+          'stats.pushes': 'Unentschieden',
+          'stats.winrate': 'Gewinnrate',
+          'stats.progression': 'Fortschritt',
+          'stats.daily': 'Tagliche Herausforderungen',
+          'stats.events': 'Event Herausforderungen',
+          'stats.performance': 'Leistung',
+          'stats.bests': 'Beste Leistungen',
+          'stats.achievements': 'Erfolge',
+          'stats.leaderboard': 'Bestenliste'
+          ,
+          'tutorial.skip': 'Uberspringen',
+          'tutorial.next': 'Weiter',
+          'roulette.placeBets': 'Bitte platziere deine Einsatze.',
+          'roulette.nextRound': 'Platziere deine Einsatze fur die nachste Runde.',
+          'roulette.noBets': 'Keine Einsatze platziert.',
+          'roulette.needBet': 'Bitte platziere mindestens einen Einsatz.',
+          'roulette.spinFailed': 'Drehen fehlgeschlagen. Bitte erneut versuchen.'
         }
       };
 
@@ -144,10 +214,20 @@
             el.textContent = dict[key];
           }
         });
+        window.currentLang = lang;
+        window.currentDict = dict;
         localStorage.setItem('lang', lang);
       }
 
       const selector = document.getElementById('lang-select');
+      function getTranslation(key, fallback) {
+        if (window.currentDict && window.currentDict[key]) {
+          return window.currentDict[key];
+        }
+        return fallback || key;
+      }
+      window.getTranslation = getTranslation;
+
       if (selector) {
         const saved = localStorage.getItem('lang') || 'en';
         selector.value = saved;

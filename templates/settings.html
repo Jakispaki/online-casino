@@ -99,24 +99,45 @@
     font-size: 12px;
     color: #9aa2ba;
   }
+  .account-status {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #9fe6b1;
+  }
+  .account-card {
+    margin-top: 18px;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+  .account-row {
+    margin-bottom: 12px;
+  }
+  .account-row label {
+    font-size: 13px;
+    color: #d6d9e2;
+    font-weight: 600;
+  }
 </style>
 
 <div class="settings-wrapper">
   <div class="settings-header">
-    <h1>Game Settings</h1>
-    <a class="btn-ghost" href="{{ url_for('blackjack') }}">Back to table</a>
+    <h1 data-i18n="ui.gameSettings">Game Settings</h1>
+    <a class="btn-ghost" data-i18n="ui.backTable" href="{{ url_for('blackjack') }}">Back to table</a>
   </div>
 
   <div class="settings-card">
     <div class="settings-row">
-      <label for="setting-sound">Sound effects</label>
+      <label for="setting-sound" data-i18n="ui.sound">Sound effects</label>
       <div class="toggle">
         <input id="setting-sound" type="checkbox" checked>
         <span>On</span>
       </div>
     </div>
     <div class="settings-row">
-      <label for="setting-speed">Dealer speed</label>
+      <label for="setting-speed" data-i18n="ui.dealerSpeed">Dealer speed</label>
       <select id="setting-speed" class="form-control">
         <option>Normal</option>
         <option>Fast</option>
@@ -124,7 +145,7 @@
       </select>
     </div>
     <div class="settings-row">
-      <label for="setting-theme">Table theme</label>
+      <label for="setting-theme" data-i18n="ui.tableTheme">Table theme</label>
       <select id="setting-theme" class="form-control">
         <option value="green">Classic Green</option>
         <option value="blue">Midnight Blue</option>
@@ -132,7 +153,7 @@
       </select>
     </div>
     <div class="settings-row">
-      <label for="setting-card-size">Card size</label>
+      <label for="setting-card-size" data-i18n="ui.cardSize">Card size</label>
       <select id="setting-card-size" class="form-control">
         <option value="standard">Standard</option>
         <option value="large">Large</option>
@@ -142,11 +163,37 @@
   </div>
 
   <div class="settings-actions">
-    <button class="btn-ghost" type="button" id="settings-reset">Reset</button>
-    <button class="btn-auth" type="button" id="settings-save">Save</button>
+    <button class="btn-ghost" type="button" id="settings-reset" data-i18n="ui.reset">Reset</button>
+    <button class="btn-auth" type="button" id="settings-save" data-i18n="ui.save">Save</button>
   </div>
   <div class="save-status" id="save-status">Settings saved.</div>
   <p class="settings-note">Settings update the table visuals immediately on the Blackjack page.</p>
+
+  <div class="account-card">
+    <h3 data-i18n="ui.accountSettings">Account Settings</h3>
+    {% if account_status %}
+      <div class="account-status">{{ account_status }}</div>
+    {% endif %}
+    <form action="{{ url_for('account_update') }}" method="post">
+      <div class="account-row">
+        <label for="account-username" data-i18n="ui.username">Username</label>
+        <input id="account-username" class="form-control" name="username" value="{{ current_user.username }}">
+      </div>
+      <div class="account-row">
+        <label for="account-email" data-i18n="ui.email">Email</label>
+        <input id="account-email" class="form-control" type="email" name="email" value="{{ current_user.email or '' }}">
+      </div>
+      <div class="account-row">
+        <label for="account-current" data-i18n="ui.currentPassword">Current password</label>
+        <input id="account-current" class="form-control" type="password" name="current_password" required>
+      </div>
+      <div class="account-row">
+        <label for="account-new" data-i18n="ui.newPassword">New password</label>
+        <input id="account-new" class="form-control" type="password" name="new_password">
+      </div>
+      <button class="btn-auth" type="submit" data-i18n="ui.save">Save</button>
+    </form>
+  </div>
 </div>
 
 <script>
@@ -185,7 +232,7 @@
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     const status = document.getElementById('save-status');
     status.style.display = 'block';
-    status.textContent = 'Settings saved.';
+    status.textContent = window.getTranslation('ui.settingsSaved', 'Settings saved.');
     setTimeout(() => {
       status.style.display = 'none';
     }, 2000);
@@ -196,7 +243,7 @@
     applyToForm(defaults);
     const status = document.getElementById('save-status');
     status.style.display = 'block';
-    status.textContent = 'Settings reset to default.';
+    status.textContent = window.getTranslation('ui.settingsReset', 'Settings reset to default.');
     setTimeout(() => {
       status.style.display = 'none';
     }, 2000);

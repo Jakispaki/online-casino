@@ -215,35 +215,35 @@
 
 <div class="stats-wrapper">
   <div class="stats-header">
-    <h1>Player statistics</h1>
-    <a class="btn-ghost" href="{{ url_for('blackjack') }}">Back to table</a>
+    <h1 data-i18n="stats.title">Player statistics</h1>
+    <a class="btn-ghost" data-i18n="ui.backTable" href="{{ url_for('blackjack') }}">Back to table</a>
   </div>
 
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="label">Total games</div>
+      <div class="label" data-i18n="stats.total">Total games</div>
       <div class="value">{{ total_games }}</div>
     </div>
     <div class="stat-card">
-      <div class="label">Wins</div>
+      <div class="label" data-i18n="stats.wins">Wins</div>
       <div class="value">{{ wins }}</div>
     </div>
     <div class="stat-card">
-      <div class="label">Losses</div>
+      <div class="label" data-i18n="stats.losses">Losses</div>
       <div class="value">{{ losses }}</div>
     </div>
     <div class="stat-card">
-      <div class="label">Pushes</div>
+      <div class="label" data-i18n="stats.pushes">Pushes</div>
       <div class="value">{{ pushes }}</div>
     </div>
     <div class="stat-card">
-      <div class="label">Win rate</div>
+      <div class="label" data-i18n="stats.winrate">Win rate</div>
       <div class="value">{{ win_rate }}%</div>
     </div>
   </div>
 
   <div class="stats-section">
-    <h2>Progression</h2>
+    <h2 data-i18n="stats.progression">Progression</h2>
     <div class="progress-row">
       <div class="progress-card">
         <h4>Level</h4>
@@ -261,7 +261,7 @@
   </div>
 
   <div class="stats-section">
-    <h2>Daily challenges</h2>
+    <h2 data-i18n="stats.daily">Daily challenges</h2>
     {% for c in challenges %}
       {% set progress = (c.value / c.target * 100) if c.target > 0 else 0 %}
       <div class="challenge-item">
@@ -275,7 +275,7 @@
   </div>
 
   <div class="stats-section">
-    <h2>Event challenges</h2>
+    <h2 data-i18n="stats.events">Event challenges</h2>
     {% for e in event_challenges %}
       {% set progress = (e.value / e.target * 100) if e.target > 0 else 0 %}
       <div class="event-card" data-remaining="{{ e.remaining }}">
@@ -295,7 +295,7 @@
   </div>
 
   <div class="stats-section">
-    <h2>Performance (last {{ chart_points|length }} games)</h2>
+    <h2 data-i18n="stats.performance">Performance (last {{ chart_points|length }} games)</h2>
     <div class="chart">
       {% for point in chart_points %}
         <div class="bar {% if point.result == 'player_win' %}win{% elif point.result == 'push' %}push{% else %}loss{% endif %}" style="height: {{ 20 + (point.value * 100) }}px;">
@@ -309,7 +309,7 @@
   </div>
 
   <div class="stats-section">
-    <h2>Personal bests</h2>
+    <h2 data-i18n="stats.bests">Personal bests</h2>
     <div class="progress-row">
       <div class="progress-card">
         <h4>Highest balance</h4>
@@ -327,7 +327,7 @@
   </div>
 
   <div class="stats-section">
-    <h2>Achievements</h2>
+    <h2 data-i18n="stats.achievements">Achievements</h2>
     <div class="achievements">
       {% for achievement in achievements %}
         <div class="achievement {% if achievement.unlocked %}unlocked{% endif %}">
@@ -342,7 +342,7 @@
   </div>
 
   <div class="stats-section">
-    <h2>Leaderboard</h2>
+    <h2 data-i18n="stats.leaderboard">Leaderboard</h2>
     <div class="leaderboard">
       <div>
         <h4>Top balance</h4>
