@@ -71,10 +71,8 @@
     border-radius: 50%;
     border: 10px solid #111827;
     box-shadow: 0 0 40px rgba(0,0,0,0.6);
+    transform: rotate(var(--spin-deg, 0deg));
     transition: transform 4s cubic-bezier(0.2, 0.7, 0.15, 1);
-  }
-  .wheel-rotor.spinning {
-    transform: rotate(var(--spin-deg));
   }
   .wheel-labels {
     position: absolute;
@@ -253,7 +251,6 @@
     const delta = (desired - current + 360) % 360;
     currentRotation += (360 * spins) + delta;
     wheelRotor.style.setProperty('--spin-deg', `${currentRotation}deg`);
-    wheelRotor.classList.add('spinning');
   }
 
   function showReward(type, value) {
@@ -283,10 +280,8 @@
         }
 
         spinTo(data.segment_index);
-        const onDone = () => {
-          wheelRotor.removeEventListener('transitionend', onDone);
-          wheelRotor.style.transform = `rotate(${currentRotation}deg)`;
-          wheelRotor.classList.remove('spinning');
+        const finishSpin = () => {
+          if (!spinning) return;
           showReward(data.reward_type, data.reward_value);
           document.getElementById('balance').textContent = Number(data.balance).toFixed(2);
           document.getElementById('xp').textContent = data.xp;
@@ -297,7 +292,12 @@
           spinBtn.disabled = false;
           spinning = false;
         };
+        const onDone = () => {
+          wheelRotor.removeEventListener('transitionend', onDone);
+          finishSpin();
+        };
         wheelRotor.addEventListener('transitionend', onDone);
+        setTimeout(finishSpin, 4300);
       })
       .catch(() => {
         rewardBox.textContent = 'Spin failed.';
