@@ -120,7 +120,7 @@
     );
     border: 6px solid #111827;
     position: relative;
-    transition: transform 1.5s ease-out;
+    transition: transform 3.5s ease-out;
   }
   .wheel-numbers {
     position: absolute;
@@ -645,7 +645,7 @@
 
     betCells.forEach(cell => cell.classList.remove('win'));
 
-    const rotation = 1440 + Math.floor(Math.random() * 360);
+    const rotation = 3600 + Math.floor(Math.random() * 720);
     wheel.style.setProperty('--spin-deg', `${rotation}deg`);
     wheel.classList.remove('spinning');
     void wheel.offsetWidth;

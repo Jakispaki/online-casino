@@ -250,7 +250,7 @@
 
     <div id="bet-section" class="bet-panel">
       <label for="bet">Bet Amount ($)</label>
-      <input type="number" class="form-control" id="bet" value="10" min="1" step="0.01">
+      <input type="number" class="form-control" id="bet" value="10" min="1" step="10">
       <button class="btn-auth" style="margin-top: 10px;" onclick="startGame()">Deal cards</button>
     </div>
 
@@ -322,6 +322,18 @@ function applySettings() {
 applySettings();
 
 let currentSessionId = null;
+const BET_KEY = 'blackjack_bet';
+
+const betInput = document.getElementById('bet');
+if (betInput) {
+  const savedBet = localStorage.getItem(BET_KEY);
+  if (savedBet) {
+    betInput.value = savedBet;
+  }
+  betInput.addEventListener('input', () => {
+    localStorage.setItem(BET_KEY, betInput.value);
+  });
+}
 
 function startGame() {
   const bet = parseFloat(document.getElementById('bet').value);
@@ -330,6 +342,8 @@ function startGame() {
     alert('Enter a valid bet amount');
     return;
   }
+
+  localStorage.setItem(BET_KEY, bet.toString());
 
   const formData = new FormData();
   formData.append('bet', bet);
