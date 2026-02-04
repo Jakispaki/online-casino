@@ -307,6 +307,30 @@
     margin-top: 18px;
   }
   .side-panel h4 { margin-top: 0; }
+  .bet-guide {
+    background: linear-gradient(135deg, rgba(15, 22, 43, 0.9), rgba(11, 17, 34, 0.7));
+    border: 1px solid rgba(240, 192, 97, 0.3);
+    box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.35);
+  }
+  .bet-guide h4 {
+    color: #f0c061;
+    letter-spacing: 0.6px;
+  }
+  .bet-guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #cdd2e2;
+  }
+  .bet-guide-list span {
+    color: #f0c061;
+    font-weight: 700;
+  }
   .history {
     display: flex;
     gap: 8px;
@@ -470,17 +494,19 @@
           <p style="margin:0; font-size:13px; color:#cdd2e2;">Most wins: {{ most_wins }}</p>
         </div>
 
-        <div class="side-panel">
+        <div class="side-panel bet-guide">
           <h4>Bet guide</h4>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">1st 12: numbers 1-12</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">2nd 12: numbers 13-24</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">3rd 12: numbers 25-36</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Column 1: 1,4,7,...,34</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Column 2: 2,5,8,...,35</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Column 3: 3,6,9,...,36</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">1-18 / 19-36: low or high</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Odd / Even: parity</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Red / Black: color</p>
+          <ul class="bet-guide-list">
+            <li><span>1st 12</span> numbers 1-12</li>
+            <li><span>2nd 12</span> numbers 13-24</li>
+            <li><span>3rd 12</span> numbers 25-36</li>
+            <li><span>Column 1</span> 1,4,7,...,34</li>
+            <li><span>Column 2</span> 2,5,8,...,35</li>
+            <li><span>Column 3</span> 3,6,9,...,36</li>
+            <li><span>1-18 / 19-36</span> low or high</li>
+            <li><span>Odd / Even</span> parity</li>
+            <li><span>Red / Black</span> color</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -493,12 +519,8 @@
   <div class="tutorial-card">
     <h3 id="tutorial-title">Welcome to Roulette</h3>
     <p id="tutorial-text">Select a chip value, then tap a bet area.</p>
-    <label style="display:block; margin-top:8px; font-size:12px; color:#9aa2ba;">
-      <input type="checkbox" id="tutorial-disable">
-      <span id="tutorial-disable-label">Do not show again</span>
-    </label>
     <div class="tutorial-actions">
-      <button class="btn-skip" id="tutorial-skip">Skip</button>
+      <button class="btn-skip" id="tutorial-close">Close</button>
       <button class="btn-tutorial" id="tutorial-next">Next</button>
     </div>
   </div>
@@ -706,10 +728,8 @@
   const overlay = document.getElementById('tutorial-overlay');
   const text = document.getElementById('tutorial-text');
   const nextBtn = document.getElementById('tutorial-next');
-  const skipBtn = document.getElementById('tutorial-skip');
+  const closeBtn = document.getElementById('tutorial-close');
   const title = document.getElementById('tutorial-title');
-  const disableBox = document.getElementById('tutorial-disable');
-  const disableLabel = document.getElementById('tutorial-disable-label');
   const tutorialBtn = document.getElementById('tutorial-btn');
 
   function showTutorial() {
@@ -718,23 +738,21 @@
     const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
     title.textContent = lang === 'de' ? 'Willkommen bei Roulette' : 'Welcome to Roulette';
     text.textContent = steps[tutorialIndex];
-    skipBtn.textContent = t('tutorial.skip', 'Skip');
+    closeBtn.textContent = t('tutorial.close', 'Close');
     nextBtn.textContent = t('tutorial.next', 'Next');
-    disableLabel.textContent = t('tutorial.noShow', 'Do not show again');
     overlay.style.display = 'flex';
   }
 
   function closeTutorial() {
     overlay.style.display = 'none';
-    fetch('/tutorial/seen', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ game: 'roulette' })
-    });
+    tutorialIndex = 0;
   }
 
   if (tutorialBtn) {
-    tutorialBtn.addEventListener('click', showTutorial);
+    tutorialBtn.addEventListener('click', () => {
+      tutorialIndex = 0;
+      showTutorial();
+    });
   }
 
   nextBtn.addEventListener('click', () => {
@@ -748,6 +766,6 @@
     }
   });
 
-  skipBtn.addEventListener('click', closeTutorial);
+  closeBtn.addEventListener('click', closeTutorial);
 </script>
 {% endblock %}

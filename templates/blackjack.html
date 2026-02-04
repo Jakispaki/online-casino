@@ -283,12 +283,8 @@
   <div class="tutorial-card">
     <h3 id="tutorial-title">Welcome to Blackjack</h3>
     <p id="tutorial-text">Set your bet and press Deal to start.</p>
-    <label style="display:block; margin-top:8px; font-size:12px; color:#9aa2ba;">
-      <input type="checkbox" id="tutorial-disable">
-      <span id="tutorial-disable-label">Do not show again</span>
-    </label>
     <div class="tutorial-actions">
-      <button class="btn-skip" id="tutorial-skip">Skip</button>
+      <button class="btn-skip" id="tutorial-close">Close</button>
       <button class="btn-tutorial" id="tutorial-next">Next</button>
     </div>
   </div>
@@ -463,10 +459,8 @@ function updateDisplay(data) {
   const tutorialBtn = document.getElementById('tutorial-btn');
   const text = document.getElementById('tutorial-text');
   const nextBtn = document.getElementById('tutorial-next');
-  const skipBtn = document.getElementById('tutorial-skip');
+  const closeBtn = document.getElementById('tutorial-close');
   const title = document.getElementById('tutorial-title');
-  const disableBox = document.getElementById('tutorial-disable');
-  const disableLabel = document.getElementById('tutorial-disable-label');
 
   function showTutorial() {
     const t = window.getTranslation || ((key, fallback) => fallback || key);
@@ -474,23 +468,21 @@ function updateDisplay(data) {
     const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
     title.textContent = lang === 'de' ? 'Willkommen bei Blackjack' : 'Welcome to Blackjack';
     text.textContent = steps[tutorialIndex];
-    skipBtn.textContent = t('tutorial.skip', 'Skip');
+    closeBtn.textContent = t('tutorial.close', 'Close');
     nextBtn.textContent = t('tutorial.next', 'Next');
-    disableLabel.textContent = t('tutorial.noShow', 'Do not show again');
     overlay.style.display = 'flex';
   }
 
   function closeTutorial() {
     overlay.style.display = 'none';
-    fetch('/tutorial/seen', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ game: 'blackjack' })
-    });
+    tutorialIndex = 0;
   }
 
   if (tutorialBtn) {
-    tutorialBtn.addEventListener('click', showTutorial);
+    tutorialBtn.addEventListener('click', () => {
+      tutorialIndex = 0;
+      showTutorial();
+    });
   }
 
   nextBtn.addEventListener('click', () => {
@@ -504,6 +496,6 @@ function updateDisplay(data) {
     }
   });
 
-  skipBtn.addEventListener('click', closeTutorial);
+  closeBtn.addEventListener('click', closeTutorial);
 </script>
 {% endblock %}
