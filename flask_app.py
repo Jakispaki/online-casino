@@ -220,10 +220,58 @@ def _compute_personal_best_balance(user_id, current_balance):
     return round(best, 2)
 
 
-def _xp_and_level(total_games, wins):
-    xp = (total_games * 10) + (wins * 50)
+def _bonus_xp(user_id):
+    row = db_read(
+        "SELECT COALESCE(SUM(amount), 0) AS total FROM xp_rewards WHERE user_id=%s",
+        (user_id,),
+        single=True,
+    )
+    return int((row or {}).get("total") or 0)
+
+
+def _xp_and_level(total_games, wins, bonus_xp=0):
+    xp = (total_games * 10) + (wins * 50) + bonus_xp
     level = max(1, xp // 500 + 1)
     return xp, int(level)
+
+
+def _count_total_games_wins(user_id):
+    bj_total = db_read(
+        "SELECT COUNT(*) AS total FROM blackjack_sessions WHERE user_id=%s AND finished=TRUE",
+        (user_id,),
+        single=True,
+    )
+    bj_wins = db_read(
+        "SELECT COUNT(*) AS total FROM blackjack_sessions WHERE user_id=%s AND finished=TRUE AND result='player_win'",
+        (user_id,),
+        single=True,
+    )
+    ru_total = db_read(
+        "SELECT COUNT(*) AS total FROM roulette_sessions WHERE user_id=%s",
+        (user_id,),
+        single=True,
+    )
+    ru_wins = db_read(
+        "SELECT COUNT(*) AS total FROM roulette_sessions WHERE user_id=%s AND win=TRUE",
+        (user_id,),
+        single=True,
+    )
+    total_games = int((bj_total or {}).get("total") or 0) + int((ru_total or {}).get("total") or 0)
+    wins = int((bj_wins or {}).get("total") or 0) + int((ru_wins or {}).get("total") or 0)
+    return total_games, wins
+
+
+def _lucky_wheel_segments():
+    return [
+        {"label_key": "wheel.segment.coins50", "label": "$50", "type": "money", "value": 50, "color": "#f0c061"},
+        {"label_key": "wheel.segment.xp100", "label": "XP 100", "type": "xp", "value": 100, "color": "#4fd1c5"},
+        {"label_key": "wheel.segment.coins150", "label": "$150", "type": "money", "value": 150, "color": "#d69e2e"},
+        {"label_key": "wheel.segment.none", "label": "No win", "type": "none", "value": 0, "color": "#4b5563"},
+        {"label_key": "wheel.segment.xp250", "label": "XP 250", "type": "xp", "value": 250, "color": "#38b2ac"},
+        {"label_key": "wheel.segment.coins300", "label": "$300", "type": "money", "value": 300, "color": "#f6ad55"},
+        {"label_key": "wheel.segment.coins500", "label": "$500", "type": "money", "value": 500, "color": "#ed8936"},
+        {"label_key": "wheel.segment.xp500", "label": "XP 500", "type": "xp", "value": 500, "color": "#4299e1"},
+    ]
 
 
 def _rank_title(level):
@@ -357,7 +405,8 @@ def stats():
         label = s.get("created_at").strftime("%b %d") if s.get("created_at") else ""
         chart_points.append({"value": value, "label": label, "result": result})
 
-    xp, level = _xp_and_level(total_games, wins)
+    bonus_xp = _bonus_xp(current_user.id)
+    xp, level = _xp_and_level(total_games, wins, bonus_xp)
     rank_title = _rank_title(level)
 
     def _range_sessions(start, end):
@@ -589,7 +638,8 @@ def stats():
         total = len(bj) + len(ru)
         win_count = sum(1 for s in bj if s.get("result") == "player_win") + sum(1 for s in ru if s.get("win"))
         loss_count = sum(1 for s in bj if s.get("result") in ("dealer_win", "player_bust")) + sum(1 for s in ru if not s.get("win"))
-        xp_u, level_u = _xp_and_level(total, win_count)
+        bonus_u = _bonus_xp(uid)
+        xp_u, level_u = _xp_and_level(total, win_count, bonus_u)
         win_rate_u = round((win_count / total) * 100, 1) if total else 0
         leaderboard.append({
             "username": u["username"],
@@ -637,6 +687,117 @@ def stats():
 @app.route("/help", methods=["GET"])
 def help_page():
     return render_template("help.html")
+
+
+@app.route("/lucky-wheel", methods=["GET"])
+@login_required
+def lucky_wheel():
+    balance = _wallet_balance(current_user.id)
+    total_games, wins = _count_total_games_wins(current_user.id)
+    bonus_xp = _bonus_xp(current_user.id)
+    xp, level = _xp_and_level(total_games, wins, bonus_xp)
+
+    last_free = db_read(
+        "SELECT created_at FROM lucky_wheel_spins WHERE user_id=%s AND cost=0 ORDER BY created_at DESC LIMIT 1",
+        (current_user.id,),
+        single=True,
+    )
+    now = datetime.utcnow()
+    free_available = True
+    next_free_seconds = 0
+    if last_free and last_free.get("created_at"):
+        delta = now - last_free["created_at"]
+        remaining = timedelta(days=1) - delta
+        next_free_seconds = max(0, int(remaining.total_seconds()))
+        free_available = next_free_seconds == 0
+
+    return render_template(
+        "lucky_wheel.html",
+        balance=balance,
+        xp=xp,
+        level=level,
+        segments=_lucky_wheel_segments(),
+        free_available=free_available,
+        next_free_seconds=next_free_seconds,
+        spin_cost=100,
+    )
+
+
+@app.post("/lucky-wheel/spin")
+@login_required
+def lucky_wheel_spin():
+    segments = _lucky_wheel_segments()
+    now = datetime.utcnow()
+    balance = _wallet_balance(current_user.id)
+
+    last_free = db_read(
+        "SELECT created_at FROM lucky_wheel_spins WHERE user_id=%s AND cost=0 ORDER BY created_at DESC LIMIT 1",
+        (current_user.id,),
+        single=True,
+    )
+    free_available = True
+    if last_free and last_free.get("created_at"):
+        free_available = (now - last_free["created_at"]) >= timedelta(days=1)
+
+    cost = 0 if free_available else 100
+    if cost > 0 and balance < cost:
+        return jsonify({"ok": False, "error_key": "wheel.errorBalance"}), 400
+
+    if cost > 0:
+        balance -= cost
+        db_write("UPDATE wallets SET balance=%s WHERE user_id=%s", (balance, current_user.id))
+        db_write(
+            "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+            (current_user.id, -cost, "lucky_wheel_fee", "Lucky Wheel spin fee"),
+        )
+
+    segment_index = random.randint(0, len(segments) - 1)
+    segment = segments[segment_index]
+    reward_type = segment["type"]
+    reward_value = int(segment["value"])
+
+    if reward_type == "money" and reward_value > 0:
+        balance += reward_value
+        db_write("UPDATE wallets SET balance=%s WHERE user_id=%s", (balance, current_user.id))
+        db_write(
+            "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+            (current_user.id, reward_value, "lucky_wheel_reward", "Lucky Wheel reward"),
+        )
+    elif reward_type == "xp" and reward_value > 0:
+        db_write(
+            "INSERT INTO xp_rewards (user_id, amount, source) VALUES (%s, %s, %s)",
+            (current_user.id, reward_value, "lucky_wheel"),
+        )
+
+    db_write(
+        "INSERT INTO lucky_wheel_spins (user_id, reward_type, reward_value, cost) VALUES (%s, %s, %s, %s)",
+        (current_user.id, reward_type, reward_value, cost),
+    )
+
+    last_free_time = now if cost == 0 else (last_free.get("created_at") if last_free else None)
+    if last_free_time:
+        remaining = timedelta(days=1) - (now - last_free_time)
+        next_free_seconds = max(0, int(remaining.total_seconds()))
+        free_available = next_free_seconds == 0
+    else:
+        next_free_seconds = 0
+        free_available = True
+
+    total_games, wins = _count_total_games_wins(current_user.id)
+    bonus_xp = _bonus_xp(current_user.id)
+    xp, level = _xp_and_level(total_games, wins, bonus_xp)
+
+    return jsonify({
+        "ok": True,
+        "segment_index": segment_index,
+        "reward_type": reward_type,
+        "reward_value": reward_value,
+        "balance": balance,
+        "xp": xp,
+        "level": level,
+        "free_available": free_available,
+        "next_free_seconds": next_free_seconds,
+    })
 
 
 @app.route("/roulette", methods=["GET"])

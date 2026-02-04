@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  .wheel-wrapper {
+    max-width: 980px;
+    margin: 28px auto 60px;
+    padding: 0 16px;
+  }
+  .casino-topbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
+  .casino-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+  .pill-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .balance-pill {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-weight: 700;
+    color: #f0c061;
+  }
+  .topbar-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .icon-btn {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #cdd2e2;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .wheel-subtitle {
+    margin: 16px 0 8px;
+    text-align: center;
+    color: #9aa2ba;
+  }
+  .wheel-area {
+    position: relative;
+    width: 380px;
+    height: 380px;
+    margin: 24px auto 16px;
+  }
+  .wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 10px solid #111827;
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+    transition: transform 4s cubic-bezier(0.2, 0.7, 0.15, 1);
+  }
+  .wheel.spinning {
+    transform: rotate(var(--spin-deg));
+  }
+  .wheel-labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .wheel-label {
+    position: absolute;
+    font-size: 12px;
+    font-weight: 700;
+    color: #f7f7fb;
+    text-shadow: 0 0 8px rgba(0,0,0,0.75);
+  }
+  .pointer {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 26px solid #f0c061;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    z-index: 2;
+  }
+  .wheel-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 800;
+    padding: 12px 24px;
+    border-radius: 12px;
+    letter-spacing: 1px;
+    font-size: 16px;
+  }
+  .btn-auth:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .cooldown {
+    font-size: 13px;
+    color: #cdd2e2;
+  }
+  .reward-box {
+    margin: 18px auto 0;
+    max-width: 520px;
+    text-align: center;
+    background: rgba(11, 17, 34, 0.7);
+    border: 1px solid #28314e;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    .casino-topbar {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    .topbar-actions {
+      justify-content: center;
+    }
+    .wheel-area {
+      width: 300px;
+      height: 300px;
+    }
+  }
+</style>
+
+<div class="wheel-wrapper">
+  <div class="casino-topbar">
+    <div class="casino-title" data-i18n="wheel.title">Lucky Wheel</div>
+    <div class="pill-group">
+      <div class="balance-pill"><span data-i18n="ui.balance">Balance</span>: $<span id="balance">{{ "%.2f"|format(balance) }}</span></div>
+      <div class="balance-pill"><span data-i18n="wheel.xp">XP</span>: <span id="xp">{{ xp }}</span></div>
+      <div class="balance-pill"><span data-i18n="wheel.level">Level</span>: <span id="level">{{ level }}</span></div>
+    </div>
+    <div class="topbar-actions">
+      <a class="icon-btn" data-i18n="ui.backTable" href="{{ url_for('blackjack') }}">Back to table</a>
+    </div>
+  </div>
+
+  <p class="wheel-subtitle" data-i18n="wheel.subtitle">One free spin per day. Extra spins cost $100.</p>
+
+  <div class="wheel-area">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+    <div class="wheel-labels" id="wheel-labels"></div>
+  </div>
+
+  <div class="wheel-actions">
+    <button id="spin-btn" class="btn-auth" data-i18n="wheel.spin">SPIN</button>
+    <div class="cooldown" id="cooldown"></div>
+  </div>
+
+  <div class="reward-box" id="reward-box" data-i18n="wheel.rewardPrompt">Spin the wheel to reveal your reward.</div>
+</div>
+
+<script>
+  const segments = {{ segments|tojson }};
+  const spinCost = {{ spin_cost }};
+  let freeAvailable = {{ 'true' if free_available else 'false' }};
+  let nextFreeSeconds = {{ next_free_seconds }};
+  let currentRotation = 0;
+  let spinning = false;
+
+  const wheel = document.getElementById('wheel');
+  const wheelLabels = document.getElementById('wheel-labels');
+  const spinBtn = document.getElementById('spin-btn');
+  const rewardBox = document.getElementById('reward-box');
+  const cooldown = document.getElementById('cooldown');
+
+  function t(key, fallback) {
+    if (window.getTranslation) {
+      return window.getTranslation(key, fallback);
+    }
+    return fallback || key;
+  }
+
+  function formatTime(seconds) {
+    const s = Math.max(0, seconds);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  function updateCooldown() {
+    if (freeAvailable) {
+      cooldown.textContent = t('wheel.freeAvailable', 'Free spin available');
+    } else {
+      const text = t('wheel.nextFree', 'Next free spin in {time}').replace('{time}', formatTime(nextFreeSeconds));
+      cooldown.textContent = `${text} · ${t('wheel.paidCost', 'Paid spin cost: $100')}`;
+    }
+  }
+
+  function renderWheel() {
+    const step = 360 / segments.length;
+    const gradient = segments.map((seg, i) => `${seg.color} ${i * step}deg ${(i + 1) * step}deg`).join(',');
+    wheel.style.background = `conic-gradient(${gradient})`;
+
+    wheelLabels.innerHTML = '';
+    const radius = wheelLabels.clientWidth / 2 - 32;
+    const center = wheelLabels.clientWidth / 2;
+
+    segments.forEach((seg, i) => {
+      const label = document.createElement('div');
+      label.className = 'wheel-label';
+      label.textContent = t(seg.label_key, seg.label);
+      const angle = (i + 0.5) * step - 90;
+      const rad = (angle * Math.PI) / 180;
+      const x = center + radius * Math.cos(rad);
+      const y = center + radius * Math.sin(rad);
+      label.style.left = `${x}px`;
+      label.style.top = `${y}px`;
+      label.style.transform = 'translate(-50%, -50%)';
+      wheelLabels.appendChild(label);
+    });
+  }
+
+  function spinTo(index) {
+    const step = 360 / segments.length;
+    const spins = 4;
+    const target = (360 * spins) + (360 - (index * step + step / 2));
+    currentRotation += target;
+    wheel.style.setProperty('--spin-deg', `${currentRotation}deg`);
+    wheel.classList.add('spinning');
+  }
+
+  function showReward(type, value) {
+    if (type === 'money') {
+      rewardBox.textContent = t('wheel.rewardMoney', 'You won ${{amount}}!').replace('{amount}', value).replace('{{amount}}', value);
+    } else if (type === 'xp') {
+      rewardBox.textContent = t('wheel.rewardXp', 'You gained {amount} XP!').replace('{amount}', value);
+    } else {
+      rewardBox.textContent = t('wheel.rewardNone', 'No win this time.');
+    }
+  }
+
+  spinBtn.addEventListener('click', () => {
+    if (spinning) return;
+    spinning = true;
+    spinBtn.disabled = true;
+
+    fetch('/lucky-wheel/spin', { method: 'POST' })
+      .then((res) => res.json().then((data) => ({ status: res.status, data })))
+      .then(({ status, data }) => {
+        if (!data.ok) {
+          const msg = data.error_key ? t(data.error_key, 'Not enough balance for a paid spin.') : 'Spin failed.';
+          rewardBox.textContent = msg;
+          spinBtn.disabled = false;
+          spinning = false;
+          return;
+        }
+
+        spinTo(data.segment_index);
+        const onDone = () => {
+          wheel.removeEventListener('transitionend', onDone);
+          wheel.classList.remove('spinning');
+          showReward(data.reward_type, data.reward_value);
+          document.getElementById('balance').textContent = Number(data.balance).toFixed(2);
+          document.getElementById('xp').textContent = data.xp;
+          document.getElementById('level').textContent = data.level;
+          freeAvailable = data.free_available;
+          nextFreeSeconds = data.next_free_seconds;
+          updateCooldown();
+          spinBtn.disabled = false;
+          spinning = false;
+        };
+        wheel.addEventListener('transitionend', onDone);
+      })
+      .catch(() => {
+        rewardBox.textContent = 'Spin failed.';
+        spinBtn.disabled = false;
+        spinning = false;
+      });
+  });
+
+  updateCooldown();
+  renderWheel();
+  const selector = document.getElementById('lang-select');
+  if (selector) {
+    selector.addEventListener('change', renderWheel);
+  }
+
+  setInterval(() => {
+    if (!freeAvailable && nextFreeSeconds > 0) {
+      nextFreeSeconds -= 1;
+      updateCooldown();
+    }
+  }, 1000);
+</script>
+{% endblock %}
