@@ -349,6 +349,47 @@ def stats():
     xp, level = _xp_and_level(total_games, wins)
     rank_title = _rank_title(level)
 
+    def _range_sessions(start, end):
+        return [
+            s for s in combined
+            if s.get("created_at") and start <= s.get("created_at") <= end
+        ]
+
+    def _range_max_streak(sessions):
+        streak = 0
+        max_streak_local = 0
+        for s in sessions:
+            if s.get("win"):
+                streak += 1
+                max_streak_local = max(max_streak_local, streak)
+            else:
+                streak = 0
+        return max_streak_local
+
+    def _range_blackjack_hit(sessions):
+        for s in sessions:
+            if not s.get("player_hand"):
+                continue
+            try:
+                hand = json.loads(s.get("player_hand") or "[]")
+                if len(hand) == 2 and hand_value(hand) == 21:
+                    return 1
+            except Exception:
+                continue
+        return 0
+
+    def _event_range(start_month, start_day, end_month, end_day, now_time):
+        year = now_time.year
+        start = datetime(year, start_month, start_day)
+        end_year = year + 1 if end_month < start_month else year
+        end = datetime(end_year, end_month, end_day, 23, 59)
+        if end < now_time:
+            year += 1
+            start = datetime(year, start_month, start_day)
+            end_year = year + 1 if end_month < start_month else year
+            end = datetime(end_year, end_month, end_day, 23, 59)
+        return start, end
+
     # Daily challenges
     since = datetime.utcnow() - timedelta(days=1)
     daily_bj = db_read(
@@ -385,43 +426,135 @@ def stats():
 
     # Event challenges (time-limited)
     now = datetime.utcnow()
-    events = [
+    halloween_start, halloween_end = _event_range(10, 28, 10, 31, now)
+    winter_start, winter_end = _event_range(12, 20, 12, 26, now)
+    new_year_start, new_year_end = _event_range(12, 31, 1, 2, now)
+
+    roulette_black_wins = db_read(
+        "SELECT COUNT(*) AS total FROM roulette_sessions "
+        "WHERE user_id=%s AND bet_type='color' AND bet_value='black' "
+        "AND win=TRUE AND created_at BETWEEN %s AND %s",
+        (current_user.id, halloween_start, halloween_end),
+        single=True,
+    )
+    roulette_black_wins = int((roulette_black_wins or {}).get("total") or 0)
+
+    roulette_color_wins = db_read(
+        "SELECT COUNT(*) AS total FROM roulette_sessions "
+        "WHERE user_id=%s AND bet_type='color' AND win=TRUE "
+        "AND created_at BETWEEN %s AND %s",
+        (current_user.id, new_year_start, new_year_end),
+        single=True,
+    )
+    roulette_color_wins = int((roulette_color_wins or {}).get("total") or 0)
+
+    halloween_sessions = _range_sessions(halloween_start, halloween_end)
+    winter_sessions = _range_sessions(winter_start, winter_end)
+    new_year_sessions = _range_sessions(new_year_start, new_year_end)
+
+    halloween_wins = sum(1 for s in halloween_sessions if s.get("win"))
+    winter_wins = sum(1 for s in winter_sessions if s.get("win"))
+
+    event_challenges = []
+    halloween_challenges = [
         {
-            "title_key": "stats.event.weekendHighStakes.title",
-            "title": "Weekend High Stakes",
-            "desc_key": "stats.event.weekendHighStakes.desc",
-            "desc": "Play 10 rounds during the event.",
-            "start": now - timedelta(hours=12),
-            "end": now + timedelta(hours=36),
-            "target": 10,
-            "value": daily_games,
+            "desc_key": "stats.event.halloween.challenge1",
+            "desc": "Win 3 rounds in a row. Bonus: +50% XP during the event.",
+            "target": 3,
+            "value": _range_max_streak(halloween_sessions),
         },
         {
-            "title_key": "stats.event.sharpshooter.title",
-            "title": "Sharpshooter",
-            "desc_key": "stats.event.sharpshooter.desc",
-            "desc": "Win 3 rounds before the event ends.",
-            "start": now - timedelta(hours=6),
-            "end": now + timedelta(hours=18),
-            "target": 3,
-            "value": daily_wins,
+            "desc_key": "stats.event.halloween.challenge2",
+            "desc": "Hit Blackjack once. Bonus: +50% XP during the event.",
+            "target": 1,
+            "value": _range_blackjack_hit(halloween_sessions),
+        },
+        {
+            "desc_key": "stats.event.halloween.challenge3",
+            "desc": "Win on black 2 times (Roulette). Bonus: +50% XP during the event.",
+            "target": 2,
+            "value": roulette_black_wins,
         },
     ]
 
-    event_challenges = []
-    for e in events:
-        remaining = max(0, int((e["end"] - now).total_seconds()))
-        event_challenges.append({
-            "title_key": e["title_key"],
-            "title": e["title"],
-            "desc_key": e["desc_key"],
-            "desc": e["desc"],
-            "start": e["start"].strftime("%Y-%m-%d %H:%M"),
-            "end": e["end"].strftime("%Y-%m-%d %H:%M"),
-            "remaining": remaining,
-            "target": e["target"],
-            "value": e["value"],
-        })
+    winter_challenges = [
+        {
+            "desc_key": "stats.event.winter.challenge1",
+            "desc": "Play 10 rounds total. Bonus: Daily login reward.",
+            "target": 10,
+            "value": len(winter_sessions),
+        },
+        {
+            "desc_key": "stats.event.winter.challenge2",
+            "desc": "Win 5 times. Bonus: Daily login reward.",
+            "target": 5,
+            "value": winter_wins,
+        },
+        {
+            "desc_key": "stats.event.winter.challenge3",
+            "desc": "Reach a win streak of 3. Bonus: Daily login reward.",
+            "target": 3,
+            "value": _range_max_streak(winter_sessions),
+        },
+    ]
+
+    new_year_challenges = [
+        {
+            "desc_key": "stats.event.newyear.challenge1",
+            "desc": "Win on red OR black 3 times (Roulette). Bonus: Double XP on all games.",
+            "target": 3,
+            "value": roulette_color_wins,
+        },
+        {
+            "desc_key": "stats.event.newyear.challenge2",
+            "desc": "Win a hand with Double Down (Blackjack). Bonus: Double XP on all games.",
+            "target": 1,
+            "value": 0,
+        },
+        {
+            "desc_key": "stats.event.newyear.challenge3",
+            "desc": "Reach a new personal best balance. Bonus: Double XP on all games.",
+            "target": 1,
+            "value": 0,
+        },
+    ]
+
+    def _append_event(title_key, title, start, end, challenges):
+        for challenge in challenges:
+            remaining = max(0, int((end - now).total_seconds()))
+            event_challenges.append({
+                "title_key": title_key,
+                "title": title,
+                "desc_key": challenge["desc_key"],
+                "desc": challenge["desc"],
+                "start": start.strftime("%Y-%m-%d %H:%M"),
+                "end": end.strftime("%Y-%m-%d %H:%M"),
+                "remaining": remaining,
+                "target": challenge["target"],
+                "value": challenge["value"],
+            })
+
+    _append_event(
+        "stats.event.halloween.title",
+        "Halloween Event – Night of Luck",
+        halloween_start,
+        halloween_end,
+        halloween_challenges,
+    )
+    _append_event(
+        "stats.event.winter.title",
+        "Winter / Christmas Event – Holiday Jackpot",
+        winter_start,
+        winter_end,
+        winter_challenges,
+    )
+    _append_event(
+        "stats.event.newyear.title",
+        "New Year Event – Double or Nothing",
+        new_year_start,
+        new_year_end,
+        new_year_challenges,
+    )
 
     # Personal bests
     current_balance = _wallet_balance(current_user.id)
