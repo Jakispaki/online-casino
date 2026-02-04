@@ -231,7 +231,7 @@
       const label = document.createElement('div');
       label.className = 'wheel-label';
       label.textContent = t(seg.label_key, seg.label);
-      const angle = (i + 0.5) * step - 90;
+      const angle = (i + 0.5) * step;
       const rad = (angle * Math.PI) / 180;
       const x = center + radius * Math.cos(rad);
       const y = center + radius * Math.sin(rad);
