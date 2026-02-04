@@ -10,11 +10,12 @@ login_manager = LoginManager()
 
 
 class User(UserMixin):
-    def __init__(self, id, username, password, email=None):
+    def __init__(self, id, username, password, email=None, tutorial_seen=False):
         self.id = id
         self.username = username
         self.password = password
         self.email = email
+        self.tutorial_seen = tutorial_seen
 
     @staticmethod
     def get_by_id(user_id):
@@ -31,7 +32,7 @@ class User(UserMixin):
             return None
 
         if row:
-            return User(row["id"], row["username"], row["password"], row.get("email"))
+            return User(row["id"], row["username"], row["password"], row.get("email"), row.get("tutorial_seen"))
         else:
             logger.warning("User.get_by_id(): kein User mit id=%s gefunden", user_id)
             return None
@@ -51,7 +52,7 @@ class User(UserMixin):
             return None
 
         if row:
-            return User(row["id"], row["username"], row["password"], row.get("email"))
+            return User(row["id"], row["username"], row["password"], row.get("email"), row.get("tutorial_seen"))
         else:
             logger.info("User.get_by_username(): kein User mit username=%s", username)
             return None
@@ -71,7 +72,7 @@ class User(UserMixin):
             return None
 
         if row:
-            return User(row["id"], row["username"], row["password"], row.get("email"))
+            return User(row["id"], row["username"], row["password"], row.get("email"), row.get("tutorial_seen"))
         else:
             logger.info("User.get_by_email(): kein User mit email=%s", email)
             return None

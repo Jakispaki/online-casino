@@ -278,6 +278,10 @@
   <div class="tutorial-card">
     <h3 id="tutorial-title">Welcome to Blackjack</h3>
     <p id="tutorial-text">Set your bet and press Deal to start.</p>
+    <label style="display:block; margin-top:8px; font-size:12px; color:#9aa2ba;">
+      <input type="checkbox" id="tutorial-disable">
+      <span id="tutorial-disable-label">Do not show again</span>
+    </label>
     <div class="tutorial-actions">
       <button class="btn-skip" id="tutorial-skip">Skip</button>
       <button class="btn-tutorial" id="tutorial-next">Next</button>
@@ -455,6 +459,8 @@ function updateDisplay(data) {
   const nextBtn = document.getElementById('tutorial-next');
   const skipBtn = document.getElementById('tutorial-skip');
   const title = document.getElementById('tutorial-title');
+  const disableBox = document.getElementById('tutorial-disable');
+  const disableLabel = document.getElementById('tutorial-disable-label');
 
   function showTutorial() {
     const lang = window.currentLang || 'en';
@@ -463,11 +469,15 @@ function updateDisplay(data) {
     text.textContent = steps[tutorialIndex];
     skipBtn.textContent = window.getTranslation('tutorial.skip', 'Skip');
     nextBtn.textContent = window.getTranslation('tutorial.next', 'Next');
+    disableLabel.textContent = window.getTranslation('tutorial.noShow', 'Do not show again');
     overlay.style.display = 'flex';
   }
 
   function closeTutorial() {
     overlay.style.display = 'none';
+    if (disableBox.checked) {
+      fetch('/tutorial/seen', { method: 'POST' });
+    }
   }
 
   if (SHOW_TUTORIAL) {

@@ -64,6 +64,8 @@ def login():
 
         if user:
             login_user(user)
+            if not getattr(user, "tutorial_seen", False):
+                session["show_tutorial"] = True
             return redirect(url_for("blackjack"))
 
         error = "Benutzername oder Passwort ist falsch."
@@ -515,6 +517,13 @@ def account_update():
         db_write("UPDATE users SET password=%s WHERE id=%s", (hashed, current_user.id))
 
     return redirect(url_for("settings", status="success"))
+
+
+@app.post("/tutorial/seen")
+@login_required
+def tutorial_seen():
+    db_write("UPDATE users SET tutorial_seen=TRUE WHERE id=%s", (current_user.id,))
+    return jsonify({"ok": True})
 
 
 @app.post("/roulette/spin")
