@@ -182,7 +182,6 @@
 
 <script>
   const segments = {{ segments|tojson }};
-  const spinCost = {{ spin_cost }};
   let freeAvailable = {{ 'true' if free_available else 'false' }};
   let nextFreeSeconds = {{ next_free_seconds }};
   let currentRotation = 0;

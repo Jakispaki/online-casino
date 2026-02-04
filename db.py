@@ -26,12 +26,10 @@ def db_read(sql, params=None, single=False):
         if single:
             # liefert EIN Dict oder None
             row = cur.fetchone()
-            print("db_read(single=True) ->", row)   # DEBUG
             return row
         else:
             # liefert Liste von Dicts (evtl. [])
             rows = cur.fetchall()
-            print("db_read(single=False) ->", rows)  # DEBUG
             return rows
 
     finally:
@@ -48,10 +46,8 @@ def db_write(sql, params=None):
         cur = conn.cursor()
         cur.execute(sql, params or ())
         conn.commit()
-        print("db_write OK:", sql, params)  # DEBUG
         return True
     except Exception as e:
-        print("db_write ERROR:", sql, params, str(e))
         conn.rollback()
         return False
     finally:
