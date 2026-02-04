@@ -72,6 +72,12 @@
     justify-content: flex-end;
     gap: 10px;
   }
+  .save-status {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #9fe6b1;
+    display: none;
+  }
   .btn-auth {
     background: linear-gradient(135deg, #d8a748, #b9801f);
     border: none;
@@ -103,42 +109,102 @@
 
   <div class="settings-card">
     <div class="settings-row">
-      <label>Sound effects</label>
+      <label for="setting-sound">Sound effects</label>
       <div class="toggle">
-        <input type="checkbox" checked>
+        <input id="setting-sound" type="checkbox" checked>
         <span>On</span>
       </div>
     </div>
     <div class="settings-row">
-      <label>Dealer speed</label>
-      <select class="form-control">
+      <label for="setting-speed">Dealer speed</label>
+      <select id="setting-speed" class="form-control">
         <option>Normal</option>
         <option>Fast</option>
         <option>Slow</option>
       </select>
     </div>
     <div class="settings-row">
-      <label>Table theme</label>
-      <select class="form-control">
-        <option>Classic Green</option>
-        <option>Midnight Blue</option>
-        <option>Velvet Red</option>
+      <label for="setting-theme">Table theme</label>
+      <select id="setting-theme" class="form-control">
+        <option value="green">Classic Green</option>
+        <option value="blue">Midnight Blue</option>
+        <option value="red">Velvet Red</option>
       </select>
     </div>
     <div class="settings-row">
-      <label>Card size</label>
-      <select class="form-control">
-        <option>Standard</option>
-        <option>Large</option>
-        <option>Compact</option>
+      <label for="setting-card-size">Card size</label>
+      <select id="setting-card-size" class="form-control">
+        <option value="standard">Standard</option>
+        <option value="large">Large</option>
+        <option value="compact">Compact</option>
       </select>
     </div>
   </div>
 
   <div class="settings-actions">
-    <button class="btn-ghost" type="button">Reset</button>
-    <button class="btn-auth" type="button">Save</button>
+    <button class="btn-ghost" type="button" id="settings-reset">Reset</button>
+    <button class="btn-auth" type="button" id="settings-save">Save</button>
   </div>
-  <p class="settings-note">Settings are visual only and do not change gameplay yet.</p>
+  <div class="save-status" id="save-status">Settings saved.</div>
+  <p class="settings-note">Settings update the table visuals immediately on the Blackjack page.</p>
 </div>
+
+<script>
+  const SETTINGS_KEY = 'casino_settings';
+  const defaults = {
+    sound: true,
+    speed: 'Normal',
+    theme: 'green',
+    cardSize: 'standard'
+  };
+
+  function loadSettings() {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return { ...defaults };
+    try {
+      return { ...defaults, ...JSON.parse(raw) };
+    } catch {
+      return { ...defaults };
+    }
+  }
+
+  function applyToForm(settings) {
+    document.getElementById('setting-sound').checked = settings.sound;
+    document.getElementById('setting-speed').value = settings.speed;
+    document.getElementById('setting-theme').value = settings.theme;
+    document.getElementById('setting-card-size').value = settings.cardSize;
+  }
+
+  function saveSettings() {
+    const settings = {
+      sound: document.getElementById('setting-sound').checked,
+      speed: document.getElementById('setting-speed').value,
+      theme: document.getElementById('setting-theme').value,
+      cardSize: document.getElementById('setting-card-size').value
+    };
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    const status = document.getElementById('save-status');
+    status.style.display = 'block';
+    status.textContent = 'Settings saved.';
+    setTimeout(() => {
+      status.style.display = 'none';
+    }, 2000);
+  }
+
+  function resetSettings() {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(defaults));
+    applyToForm(defaults);
+    const status = document.getElementById('save-status');
+    status.style.display = 'block';
+    status.textContent = 'Settings reset to default.';
+    setTimeout(() => {
+      status.style.display = 'none';
+    }, 2000);
+  }
+
+  document.getElementById('settings-save').addEventListener('click', saveSettings);
+  document.getElementById('settings-reset').addEventListener('click', resetSettings);
+
+  applyToForm(loadSettings());
+</script>
 {% endblock %}

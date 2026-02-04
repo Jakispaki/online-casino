@@ -6,6 +6,12 @@
     background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
     color: #e8e8e8;
   }
+  :root {
+    --felt-color: #0b1b14;
+    --felt-border: #1f3b2c;
+    --card-width: 58px;
+    --card-height: 78px;
+  }
   .casino-wrapper {
     margin: 24px auto 60px;
     max-width: 1100px;
@@ -55,8 +61,8 @@
   }
   .table-area {
     margin-top: 22px;
-    background: #0b1b14;
-    border: 2px solid #1f3b2c;
+    background: var(--felt-color);
+    border: 2px solid var(--felt-border);
     border-radius: 22px;
     padding: 22px 18px 26px;
     box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
@@ -116,8 +122,8 @@
     font-weight: 600;
   }
   .card {
-    width: 58px;
-    height: 78px;
+    width: var(--card-width);
+    height: var(--card-height);
     border-radius: 10px;
     background: #f7f7fb;
     color: #121212;
@@ -223,6 +229,36 @@
 </div>
 
 <script>
+const SETTINGS_KEY = 'casino_settings';
+const themeMap = {
+  green: { felt: '#0b1b14', border: '#1f3b2c' },
+  blue: { felt: '#0b1224', border: '#23345d' },
+  red: { felt: '#241011', border: '#4e1b1f' }
+};
+const cardSizes = {
+  standard: { w: '58px', h: '78px' },
+  large: { w: '68px', h: '92px' },
+  compact: { w: '50px', h: '68px' }
+};
+
+function applySettings() {
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  if (!raw) return;
+  try {
+    const settings = JSON.parse(raw);
+    const theme = themeMap[settings.theme] || themeMap.green;
+    const size = cardSizes[settings.cardSize] || cardSizes.standard;
+    document.documentElement.style.setProperty('--felt-color', theme.felt);
+    document.documentElement.style.setProperty('--felt-border', theme.border);
+    document.documentElement.style.setProperty('--card-width', size.w);
+    document.documentElement.style.setProperty('--card-height', size.h);
+  } catch {
+    return;
+  }
+}
+
+applySettings();
+
 let currentSessionId = null;
 
 function startGame() {
