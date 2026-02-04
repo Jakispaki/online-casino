@@ -707,9 +707,11 @@
 
   function closeTutorial() {
     overlay.style.display = 'none';
-    if (disableBox.checked) {
-      fetch('/tutorial/seen', { method: 'POST' });
-    }
+    fetch('/tutorial/seen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game: 'roulette' })
+    });
   }
 
   if (SHOW_TUTORIAL) {

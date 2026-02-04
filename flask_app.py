@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, url_for, jsonify, session
+from flask import Flask, redirect, render_template, request, url_for, jsonify
 from datetime import datetime, date, timedelta
 from dotenv import load_dotenv
 import os
@@ -64,8 +64,6 @@ def login():
 
         if user:
             login_user(user)
-            if not getattr(user, "tutorial_seen", False):
-                session["show_tutorial"] = True
             return redirect(url_for("blackjack"))
 
         error = "Benutzername oder Passwort ist falsch."
@@ -105,7 +103,6 @@ def register():
         if error is None:
             ok = register_user(username, email, password)
             if ok:
-                session["show_tutorial"] = True
                 return redirect(url_for("login"))
 
             error = "Username or email already exists."
@@ -144,7 +141,7 @@ def blackjack():
     else:
         balance = float(wallet["balance"])
     
-    show_tutorial = session.get("show_tutorial", False)
+    show_tutorial = not bool(getattr(current_user, "tutorial_seen_blackjack", False))
     return render_template("blackjack.html", balance=balance, show_tutorial=show_tutorial)
 
 
@@ -476,7 +473,7 @@ def roulette():
 
     most_wins = sum(1 for s in combined if s.get("win"))
 
-    show_tutorial = session.get("show_tutorial", False)
+    show_tutorial = not bool(getattr(current_user, "tutorial_seen_roulette", False))
     return render_template(
         "roulette.html",
         balance=balance,
@@ -522,8 +519,12 @@ def account_update():
 @app.post("/tutorial/seen")
 @login_required
 def tutorial_seen():
-    db_write("UPDATE users SET tutorial_seen=TRUE WHERE id=%s", (current_user.id,))
-    session["show_tutorial"] = False
+    data = request.get_json(silent=True) or {}
+    game = data.get("game")
+    if game == "blackjack":
+        db_write("UPDATE users SET tutorial_seen_blackjack=TRUE WHERE id=%s", (current_user.id,))
+    elif game == "roulette":
+        db_write("UPDATE users SET tutorial_seen_roulette=TRUE WHERE id=%s", (current_user.id,))
     return jsonify({"ok": True})
 
 

@@ -274,7 +274,7 @@
   </div>
 </div>
 
-<div class="tutorial-overlay" id="tutorial-overlay">
+<div class="tutorial-overlay" id="tutorial-overlay" data-show="{{ 'true' if show_tutorial else 'false' }}">
   <div class="tutorial-card">
     <h3 id="tutorial-title">Welcome to Blackjack</h3>
     <p id="tutorial-text">Set your bet and press Deal to start.</p>
@@ -437,7 +437,6 @@ function updateDisplay(data) {
 }
 </script>
 <script>
-  const SHOW_TUTORIAL = {{ 'true' if show_tutorial else 'false' }};
   const tutorialStepsByLang = {
     en: [
       'Set your bet and press Deal to start.',
@@ -455,6 +454,7 @@ function updateDisplay(data) {
   let tutorialIndex = 0;
 
   const overlay = document.getElementById('tutorial-overlay');
+  const SHOW_TUTORIAL = overlay.dataset.show === 'true';
   const text = document.getElementById('tutorial-text');
   const nextBtn = document.getElementById('tutorial-next');
   const skipBtn = document.getElementById('tutorial-skip');
@@ -476,9 +476,11 @@ function updateDisplay(data) {
 
   function closeTutorial() {
     overlay.style.display = 'none';
-    if (disableBox.checked) {
-      fetch('/tutorial/seen', { method: 'POST' });
-    }
+    fetch('/tutorial/seen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game: 'blackjack' })
+    });
   }
 
   if (SHOW_TUTORIAL) {
