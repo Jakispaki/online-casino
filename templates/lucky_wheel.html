@@ -218,6 +218,11 @@
     }
   }
 
+  function applyWheelTranslations() {
+    updateCooldown();
+    renderWheel();
+  }
+
   function renderWheel() {
     const step = 360 / segments.length;
     const gradient = segments.map((seg, i) => `${seg.color} ${i * step}deg ${(i + 1) * step}deg`).join(',');
@@ -306,12 +311,10 @@
       });
   });
 
-  updateCooldown();
-  renderWheel();
-  const selector = document.getElementById('lang-select');
-  if (selector) {
-    selector.addEventListener('change', renderWheel);
+  if (window.currentDict) {
+    applyWheelTranslations();
   }
+  document.addEventListener('languageChanged', applyWheelTranslations);
 
   setInterval(() => {
     if (!freeAvailable && nextFreeSeconds > 0) {

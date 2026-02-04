@@ -717,6 +717,7 @@
         window.currentLang = lang;
         window.currentDict = dict;
         localStorage.setItem('lang', lang);
+        document.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
       }
 
       const selector = document.getElementById('lang-select');
