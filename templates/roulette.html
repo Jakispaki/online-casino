@@ -303,33 +303,39 @@
     background: rgba(11, 17, 34, 0.7);
     border: 1px solid #28314e;
     border-radius: 14px;
-    padding: 14px;
+    padding: 18px;
     margin-top: 18px;
   }
   .side-panel h4 { margin-top: 0; }
   .bet-guide {
     background: linear-gradient(135deg, rgba(15, 22, 43, 0.9), rgba(11, 17, 34, 0.7));
-    border: 1px solid rgba(240, 192, 97, 0.3);
-    box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(240, 192, 97, 0.35);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4), 0 10px 22px rgba(0,0,0,0.25);
   }
   .bet-guide h4 {
     color: #f0c061;
     letter-spacing: 0.6px;
+    font-size: 16px;
   }
   .bet-guide-list {
     list-style: none;
     padding: 0;
-    margin: 8px 0 0;
+    margin: 12px 0 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
-    font-size: 14px;
+    gap: 10px;
+    font-size: 15px;
     line-height: 1.5;
     color: #cdd2e2;
   }
   .bet-guide-list span {
     color: #f0c061;
     font-weight: 700;
+  }
+  @media (min-width: 900px) {
+    .bet-guide-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .history {
     display: flex;
@@ -754,6 +760,13 @@
       showTutorial();
     });
   }
+
+  document.addEventListener('click', (event) => {
+    if (event.target && event.target.id === 'tutorial-btn') {
+      tutorialIndex = 0;
+      showTutorial();
+    }
+  });
 
   nextBtn.addEventListener('click', () => {
     tutorialIndex += 1;
