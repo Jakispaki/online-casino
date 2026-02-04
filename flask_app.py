@@ -8,7 +8,7 @@ import hashlib
 import json
 from db import db_read, db_write
 from auth import login_manager, authenticate, register_user
-from blackjack_engine import BlackjackGame
+from blackjack_engine import BlackjackGame, hand_value
 from flask_login import login_user, logout_user, login_required, current_user
 import logging
 
@@ -178,6 +178,81 @@ def deposit():
 @login_required
 def settings():
     return render_template("settings.html")
+
+
+@app.route("/stats", methods=["GET"])
+@login_required
+def stats():
+    sessions = db_read(
+        "SELECT result, created_at, player_hand FROM blackjack_sessions WHERE user_id=%s AND finished=TRUE ORDER BY created_at ASC",
+        (current_user.id,),
+    )
+
+    total_games = len(sessions)
+    wins = sum(1 for s in sessions if s.get("result") == "player_win")
+    losses = sum(1 for s in sessions if s.get("result") == "dealer_win" or s.get("result") == "player_bust")
+    pushes = sum(1 for s in sessions if s.get("result") == "push")
+    win_rate = round((wins / total_games) * 100, 1) if total_games else 0
+
+    # Achievements
+    first_win = wins > 0
+    first_blackjack = False
+    max_streak = 0
+    current_streak = 0
+
+    for s in sessions:
+        result = s.get("result")
+        if result == "player_win":
+            current_streak += 1
+            max_streak = max(max_streak, current_streak)
+        else:
+            current_streak = 0
+
+        if not first_blackjack:
+            try:
+                hand = json.loads(s.get("player_hand") or "[]")
+                if len(hand) == 2 and hand_value(hand) == 21:
+                    first_blackjack = True
+            except Exception:
+                pass
+
+    achievements = [
+        {"title": "First Win", "unlocked": first_win, "desc": "Win your first hand."},
+        {"title": "First Blackjack", "unlocked": first_blackjack, "desc": "Hit 21 with your first two cards."},
+        {"title": "3 Win Streak", "unlocked": max_streak >= 3, "desc": "Win three hands in a row."},
+        {"title": "5 Win Streak", "unlocked": max_streak >= 5, "desc": "Win five hands in a row."},
+        {"title": "10 Games Played", "unlocked": total_games >= 10, "desc": "Play ten hands."},
+    ]
+
+    # Chart data (last 10 sessions)
+    recent = sessions[-10:]
+    chart_points = []
+    for s in recent:
+        result = s.get("result")
+        if result == "player_win":
+            value = 1
+        elif result == "push":
+            value = 0.5
+        else:
+            value = 0
+        label = s.get("created_at").strftime("%b %d") if s.get("created_at") else ""
+        chart_points.append({"value": value, "label": label, "result": result})
+
+    return render_template(
+        "stats.html",
+        total_games=total_games,
+        wins=wins,
+        losses=losses,
+        pushes=pushes,
+        win_rate=win_rate,
+        achievements=achievements,
+        chart_points=chart_points,
+    )
+
+
+@app.route("/help", methods=["GET"])
+def help_page():
+    return render_template("help.html")
 
 
 @app.post("/blackjack/new")

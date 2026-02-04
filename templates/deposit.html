@@ -63,6 +63,14 @@
     background: linear-gradient(135deg, #f0c061, #c98e29);
     color: #111;
   }
+  .btn-ghost {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #cdd2e2;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
   .notice {
     font-size: 12px;
     color: #9aa2ba;
@@ -111,7 +119,10 @@
         <input id="amount" type="number" class="form-control" name="amount" min="1" step="0.01" placeholder="50.00" required>
       </div>
 
-      <button class="btn-auth" type="submit">Add funds</button>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+        <button class="btn-auth" type="submit">Add funds</button>
+        <a class="btn-ghost" href="{{ url_for('blackjack') }}" style="text-decoration: none;">Back to game</a>
+      </div>
     </form>
 
     <p class="notice">

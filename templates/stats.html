@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  .stats-wrapper {
+    max-width: 980px;
+    margin: 28px auto 60px;
+    padding: 0 16px;
+  }
+  .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
+  .btn-ghost {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #cdd2e2;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .stats-header h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .stat-card {
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .label {
+    font-size: 12px;
+    color: #9aa2ba;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .stat-card .value {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 6px;
+    color: #f0c061;
+  }
+  .stats-section {
+    margin-top: 22px;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .stats-section h2 {
+    margin-top: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    gap: 10px;
+    align-items: end;
+    height: 140px;
+    margin-top: 14px;
+  }
+  .bar {
+    background: #1f2a49;
+    border-radius: 10px 10px 4px 4px;
+    position: relative;
+    height: 20px;
+  }
+  .bar.win { background: #2d8f5c; }
+  .bar.push { background: #d8a748; }
+  .bar.loss { background: #7a1111; }
+  .bar span {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #9aa2ba;
+    white-space: nowrap;
+  }
+  .achievements {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .achievement {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .achievement.unlocked {
+    border-color: rgba(216, 167, 72, 0.7);
+    box-shadow: 0 0 14px rgba(216, 167, 72, 0.2);
+  }
+  .achievement h3 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .achievement p {
+    margin: 0;
+    font-size: 12px;
+    color: #9aa2ba;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-top: 6px;
+    background: #28314e;
+    color: #cdd2e2;
+  }
+  .badge.unlocked {
+    background: #f0c061;
+    color: #111;
+    font-weight: 700;
+  }
+</style>
+
+<div class="stats-wrapper">
+  <div class="stats-header">
+    <h1>Player statistics</h1>
+    <a class="btn-ghost" href="{{ url_for('blackjack') }}">Back to table</a>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Total games</div>
+      <div class="value">{{ total_games }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Wins</div>
+      <div class="value">{{ wins }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Losses</div>
+      <div class="value">{{ losses }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Pushes</div>
+      <div class="value">{{ pushes }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Win rate</div>
+      <div class="value">{{ win_rate }}%</div>
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <h2>Performance (last {{ chart_points|length }} games)</h2>
+    <div class="chart">
+      {% for point in chart_points %}
+        <div class="bar {% if point.result == 'player_win' %}win{% elif point.result == 'push' %}push{% else %}loss{% endif %}" style="height: {{ 20 + (point.value * 100) }}px;">
+          <span>{{ point.label }}</span>
+        </div>
+      {% endfor %}
+      {% if chart_points|length == 0 %}
+        <p style="color:#9aa2ba;">No games played yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <h2>Achievements</h2>
+    <div class="achievements">
+      {% for achievement in achievements %}
+        <div class="achievement {% if achievement.unlocked %}unlocked{% endif %}">
+          <h3>{{ achievement.title }}</h3>
+          <p>{{ achievement.desc }}</p>
+          <div class="badge {% if achievement.unlocked %}unlocked{% endif %}">
+            {% if achievement.unlocked %}Unlocked{% else %}Locked{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
