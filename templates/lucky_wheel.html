@@ -223,6 +223,17 @@
   }
 
   function renderWheel() {
+    if (!Array.isArray(segments) || segments.length === 0) {
+      wheelRotor.style.background = '#1f2937';
+      wheelLabels.innerHTML = '';
+      if (!spinning) {
+        spinBtn.disabled = true;
+      }
+      return;
+    }
+    if (!spinning) {
+      spinBtn.disabled = false;
+    }
     const step = 360 / segments.length;
     const gradient = segments.map((seg, i) => `${seg.color} ${i * step}deg ${(i + 1) * step}deg`).join(',');
     wheelRotor.style.background = `conic-gradient(${gradient})`;
@@ -259,7 +270,8 @@
 
   function showReward(type, value) {
     if (type === 'money') {
-      rewardBox.textContent = t('wheel.rewardMoney', 'You won ${amount}!').replace('{amount}', value);
+      const amountText = `$${value}`;
+      rewardBox.textContent = t('wheel.rewardMoney', 'You won {amount}!').replace('{amount}', amountText);
     } else if (type === 'xp') {
       rewardBox.textContent = t('wheel.rewardXp', 'You gained {amount} XP!').replace('{amount}', value);
     } else {
@@ -310,9 +322,7 @@
       });
   });
 
-  if (window.currentDict) {
-    applyWheelTranslations();
-  }
+  applyWheelTranslations();
   document.addEventListener('languageChanged', applyWheelTranslations);
 
   setInterval(() => {
