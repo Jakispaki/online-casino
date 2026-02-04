@@ -463,13 +463,14 @@ function updateDisplay(data) {
   const disableLabel = document.getElementById('tutorial-disable-label');
 
   function showTutorial() {
+    const t = window.getTranslation || ((key, fallback) => fallback || key);
     const lang = window.currentLang || 'en';
     const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
     title.textContent = lang === 'de' ? 'Willkommen bei Blackjack' : 'Welcome to Blackjack';
     text.textContent = steps[tutorialIndex];
-    skipBtn.textContent = window.getTranslation('tutorial.skip', 'Skip');
-    nextBtn.textContent = window.getTranslation('tutorial.next', 'Next');
-    disableLabel.textContent = window.getTranslation('tutorial.noShow', 'Do not show again');
+    skipBtn.textContent = t('tutorial.skip', 'Skip');
+    nextBtn.textContent = t('tutorial.next', 'Next');
+    disableLabel.textContent = t('tutorial.noShow', 'Do not show again');
     overlay.style.display = 'flex';
   }
 

@@ -471,7 +471,7 @@
   <p class="footer-note">18+ only. Please gamble responsibly. This is a demo environment.</p>
 </div>
 
-  <div class="tutorial-overlay" id="tutorial-overlay">
+  <div class="tutorial-overlay" id="tutorial-overlay" data-show="{{ 'true' if show_tutorial else 'false' }}">
   <div class="tutorial-card">
     <h3 id="tutorial-title">Welcome to Roulette</h3>
     <p id="tutorial-text">Select a chip value, then tap a bet area.</p>
@@ -538,7 +538,10 @@
 
   applySettings();
   renderWheelNumbers();
-  messageBox.textContent = window.getTranslation('roulette.placeBets', 'Place your bets.');
+  {
+    const t = window.getTranslation || ((key, fallback) => fallback || key);
+    messageBox.textContent = t('roulette.placeBets', 'Place your bets.');
+  }
 
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
@@ -562,7 +565,8 @@
   function updateCurrentBets() {
     const entries = Object.entries(bets);
     if (!entries.length) {
-      currentBetsBox.textContent = window.getTranslation('roulette.noBets', 'No bets placed.');
+      const t = window.getTranslation || ((key, fallback) => fallback || key);
+      currentBetsBox.textContent = t('roulette.noBets', 'No bets placed.');
       return;
     }
     currentBetsBox.innerHTML = entries.map(([k, v]) => {
@@ -580,7 +584,8 @@
       cell.querySelector('.bet-amount').textContent = '';
     });
     updateCurrentBets();
-    messageBox.textContent = window.getTranslation('roulette.placeBets', 'Place your bets.');
+    const t = window.getTranslation || ((key, fallback) => fallback || key);
+    messageBox.textContent = t('roulette.placeBets', 'Place your bets.');
     resultBox.style.display = 'none';
   }
 
@@ -593,7 +598,8 @@
     });
 
     if (!betEntries.length) {
-      messageBox.textContent = window.getTranslation('roulette.needBet', 'Please place at least one bet.');
+      const t = window.getTranslation || ((key, fallback) => fallback || key);
+      messageBox.textContent = t('roulette.needBet', 'Please place at least one bet.');
       return;
     }
 
@@ -620,13 +626,15 @@
         const winText = data.payout > 0 ? `You win $${data.payout.toFixed(2)}` : 'No win this round.';
         resultBox.style.display = 'block';
         resultBox.innerHTML = `Winning number: <span class="winning-number">${data.result_number}</span> (${data.result_color}). ${winText}`;
-        messageBox.textContent = window.getTranslation('roulette.nextRound', 'Place your bets for the next round.');
+        const t = window.getTranslation || ((key, fallback) => fallback || key);
+        messageBox.textContent = t('roulette.nextRound', 'Place your bets for the next round.');
 
         highlightWinners(data);
         pushHistory(data.result_number, data.result_color);
       })
       .catch(() => {
-        messageBox.textContent = window.getTranslation('roulette.spinFailed', 'Spin failed. Try again.');
+        const t = window.getTranslation || ((key, fallback) => fallback || key);
+        messageBox.textContent = t('roulette.spinFailed', 'Spin failed. Try again.');
       });
   }
 
@@ -660,7 +668,7 @@
   document.getElementById('spin-btn').addEventListener('click', spinWheel);
 </script>
 <script>
-  const SHOW_TUTORIAL = {{ 'true' if show_tutorial else 'false' }};
+  const SHOW_TUTORIAL = overlay.dataset.show === 'true';
   const tutorialStepsByLang = {
     en: [
       'Select a chip value, then tap a bet area.',
@@ -686,13 +694,14 @@
   const disableLabel = document.getElementById('tutorial-disable-label');
 
   function showTutorial() {
+    const t = window.getTranslation || ((key, fallback) => fallback || key);
     const lang = window.currentLang || 'en';
     const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
     title.textContent = lang === 'de' ? 'Willkommen bei Roulette' : 'Welcome to Roulette';
     text.textContent = steps[tutorialIndex];
-    skipBtn.textContent = window.getTranslation('tutorial.skip', 'Skip');
-    nextBtn.textContent = window.getTranslation('tutorial.next', 'Next');
-    disableLabel.textContent = window.getTranslation('tutorial.noShow', 'Do not show again');
+    skipBtn.textContent = t('tutorial.skip', 'Skip');
+    nextBtn.textContent = t('tutorial.next', 'Next');
+    disableLabel.textContent = t('tutorial.noShow', 'Do not show again');
     overlay.style.display = 'flex';
   }
 
