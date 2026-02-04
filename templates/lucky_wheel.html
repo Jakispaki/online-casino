@@ -248,8 +248,10 @@
     const step = 360 / segments.length;
     const spins = 4;
     const centerAngle = (index * step) + (step / 2);
-    const target = (360 * spins) + (270 - centerAngle);
-    currentRotation += target;
+    const desired = (270 - centerAngle + 360) % 360;
+    const current = ((currentRotation % 360) + 360) % 360;
+    const delta = (desired - current + 360) % 360;
+    currentRotation += (360 * spins) + delta;
     wheelRotor.style.setProperty('--spin-deg', `${currentRotation}deg`);
     wheelRotor.classList.add('spinning');
   }
