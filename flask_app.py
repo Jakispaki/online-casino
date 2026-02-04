@@ -265,9 +265,10 @@ def _lucky_wheel_segments():
     return [
         {"label_key": "wheel.segment.coins50", "label": "$50", "type": "money", "value": 50, "color": "#f0c061"},
         {"label_key": "wheel.segment.xp100", "label": "XP 100", "type": "xp", "value": 100, "color": "#4fd1c5"},
-        {"label_key": "wheel.segment.coins150", "label": "$150", "type": "money", "value": 150, "color": "#d69e2e"},
         {"label_key": "wheel.segment.none", "label": "No win", "type": "none", "value": 0, "color": "#4b5563"},
+        {"label_key": "wheel.segment.coins150", "label": "$150", "type": "money", "value": 150, "color": "#d69e2e"},
         {"label_key": "wheel.segment.xp250", "label": "XP 250", "type": "xp", "value": 250, "color": "#38b2ac"},
+        {"label_key": "wheel.segment.none", "label": "No win", "type": "none", "value": 0, "color": "#4b5563"},
         {"label_key": "wheel.segment.coins300", "label": "$300", "type": "money", "value": 300, "color": "#f6ad55"},
         {"label_key": "wheel.segment.coins500", "label": "$500", "type": "money", "value": 500, "color": "#ed8936"},
         {"label_key": "wheel.segment.xp500", "label": "XP 500", "type": "xp", "value": 500, "color": "#4299e1"},
