@@ -66,6 +66,12 @@
     grid-template-columns: 1fr;
     gap: 18px;
   }
+  .wheel-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+  }
   .wheel {
     width: 220px;
     height: 220px;
@@ -110,8 +116,24 @@
     );
     border: 6px solid #111827;
     position: relative;
-    margin: 0 auto;
     transition: transform 1.5s ease-out;
+  }
+  .wheel-numbers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .wheel-number {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #f8f1e1;
+    text-shadow: 0 0 6px rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .wheel::after {
     content: '';
@@ -129,6 +151,12 @@
   }
   .status-bar {
     background: rgba(11, 17, 34, 0.7);
+      .winning-number {
+        display: inline-block;
+        font-size: 26px;
+        font-weight: 800;
+        color: #f0c061;
+      }
     border: 1px solid #28314e;
     border-radius: 14px;
     padding: 12px 16px;
@@ -317,7 +345,10 @@
   <div class="table-area">
     <div class="roulette-grid">
       <div style="text-align:center;">
-        <div class="wheel" id="wheel"></div>
+        <div class="wheel-container">
+          <div class="wheel" id="wheel"></div>
+          <div class="wheel-numbers" id="wheel-numbers"></div>
+        </div>
         <div id="message" class="status-bar">Place your bets.</div>
         <div id="spin-result" class="status-bar" style="display:none;"></div>
       </div>
@@ -398,6 +429,7 @@
 
 <script>
   const wheel = document.getElementById('wheel');
+  const wheelNumbers = document.getElementById('wheel-numbers');
   const resultBox = document.getElementById('spin-result');
   const messageBox = document.getElementById('message');
   const historyBox = document.getElementById('history');
@@ -406,6 +438,24 @@
   const chips = document.querySelectorAll('.chip');
   const bets = {};
   let selectedChip = 10;
+
+  function renderWheelNumbers() {
+    const radius = 96;
+    const center = 110;
+    const numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+    wheelNumbers.innerHTML = '';
+    numbers.forEach((num, i) => {
+      const angle = (i / numbers.length) * 2 * Math.PI - Math.PI / 2;
+      const x = center + radius * Math.cos(angle) - 10;
+      const y = center + radius * Math.sin(angle) - 10;
+      const el = document.createElement('div');
+      el.className = 'wheel-number';
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.textContent = num;
+      wheelNumbers.appendChild(el);
+    });
+  }
 
   const SETTINGS_KEY = 'casino_settings';
   const themeMap = {
@@ -428,6 +478,7 @@
   }
 
   applySettings();
+  renderWheelNumbers();
 
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
@@ -508,7 +559,7 @@
         document.getElementById('balance').textContent = data.balance.toFixed(2);
         const winText = data.payout > 0 ? `You win $${data.payout.toFixed(2)}` : 'No win this round.';
         resultBox.style.display = 'block';
-        resultBox.textContent = `Winning number: ${data.result_number} (${data.result_color}). ${winText}`;
+        resultBox.innerHTML = `Winning number: <span class="winning-number">${data.result_number}</span> (${data.result_color}). ${winText}`;
         messageBox.textContent = 'Place your bets for the next round.';
 
         highlightWinners(data);
