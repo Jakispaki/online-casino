@@ -144,7 +144,7 @@ def blackjack():
     else:
         balance = float(wallet["balance"])
     
-    show_tutorial = session.pop("show_tutorial", False)
+    show_tutorial = session.get("show_tutorial", False)
     return render_template("blackjack.html", balance=balance, show_tutorial=show_tutorial)
 
 
@@ -476,7 +476,7 @@ def roulette():
 
     most_wins = sum(1 for s in combined if s.get("win"))
 
-    show_tutorial = session.pop("show_tutorial", False)
+    show_tutorial = session.get("show_tutorial", False)
     return render_template(
         "roulette.html",
         balance=balance,
@@ -523,6 +523,7 @@ def account_update():
 @login_required
 def tutorial_seen():
     db_write("UPDATE users SET tutorial_seen=TRUE WHERE id=%s", (current_user.id,))
+    session["show_tutorial"] = False
     return jsonify({"ok": True})
 
 
