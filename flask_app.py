@@ -389,65 +389,147 @@ def help_page():
 @login_required
 def roulette():
     balance = _wallet_balance(current_user.id)
-    return render_template("roulette.html", balance=balance)
+    best_balance = _compute_personal_best_balance(current_user.id, balance)
+
+    bj_sessions = db_read(
+        "SELECT result, created_at, player_hand FROM blackjack_sessions WHERE user_id=%s AND finished=TRUE",
+        (current_user.id,),
+    )
+    ru_sessions = db_read(
+        "SELECT win, created_at FROM roulette_sessions WHERE user_id=%s",
+        (current_user.id,),
+    )
+    combined = []
+    for s in bj_sessions:
+        combined.append({
+            "created_at": s.get("created_at"),
+            "win": s.get("result") == "player_win",
+        })
+    for s in ru_sessions:
+        combined.append({
+            "created_at": s.get("created_at"),
+            "win": bool(s.get("win")),
+        })
+    combined.sort(key=lambda x: x.get("created_at") or datetime.min)
+
+    max_streak = 0
+    current_streak = 0
+    for s in combined:
+        if s.get("win"):
+            current_streak += 1
+            max_streak = max(max_streak, current_streak)
+        else:
+            current_streak = 0
+
+    most_wins = sum(1 for s in combined if s.get("win"))
+
+    return render_template(
+        "roulette.html",
+        balance=balance,
+        best_balance=best_balance,
+        max_streak=max_streak,
+        most_wins=most_wins,
+    )
 
 
 @app.post("/roulette/spin")
 @login_required
 def roulette_spin():
-    bet_type = request.form.get("bet_type", "")
-    bet_value = request.form.get("bet_value", "")
-    try:
-        amount = float(request.form.get("amount", "0"))
-    except ValueError:
-        amount = 0
+    data = request.get_json(silent=True) or {}
+    bets = data.get("bets")
+
+    if not bets:
+        # Fallback to legacy single bet
+        bet_type = request.form.get("bet_type", "")
+        bet_value = request.form.get("bet_value", "")
+        try:
+            amount = float(request.form.get("amount", "0"))
+        except ValueError:
+            amount = 0
+        bets = [{"type": bet_type, "value": bet_value, "amount": amount}]
+
+    cleaned = []
+    total_bet = 0
+    for b in bets:
+        b_type = str(b.get("type", "")).strip().lower()
+        b_value = str(b.get("value", "")).strip().lower()
+        try:
+            b_amount = float(b.get("amount", 0))
+        except ValueError:
+            b_amount = 0
+        if b_amount <= 0:
+            continue
+
+        valid = False
+        if b_type == "number":
+            valid = b_value.isdigit() and 0 <= int(b_value) <= 36
+        elif b_type == "color":
+            valid = b_value in ("red", "black")
+        elif b_type == "parity":
+            valid = b_value in ("odd", "even")
+        elif b_type == "range":
+            valid = b_value in ("low", "high")
+        elif b_type == "dozen":
+            valid = b_value in ("1st", "2nd", "3rd")
+        elif b_type == "column":
+            valid = b_value in ("1", "2", "3")
+
+        if valid:
+            total_bet += b_amount
+            cleaned.append({"type": b_type, "value": b_value, "amount": b_amount})
 
     balance = _wallet_balance(current_user.id)
-    if amount <= 0:
-        return jsonify({"error": "Invalid bet amount."}), 400
-    if amount > balance:
+    if total_bet <= 0:
+        return jsonify({"error": "Please place a valid bet."}), 400
+    if total_bet > balance:
         return jsonify({"error": "Insufficient balance."}), 400
-
-    bet_value = bet_value.strip().lower()
-    valid = False
-    if bet_type == "number":
-        valid = bet_value.isdigit() and 0 <= int(bet_value) <= 36
-    elif bet_type == "color":
-        valid = bet_value in ("red", "black")
-    elif bet_type == "parity":
-        valid = bet_value in ("odd", "even")
-
-    if not valid:
-        return jsonify({"error": "Invalid bet selection."}), 400
 
     result_number = random.randint(0, 36)
     red_numbers = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
     result_color = "green" if result_number == 0 else ("red" if result_number in red_numbers else "black")
     result_parity = "even" if result_number != 0 and result_number % 2 == 0 else ("odd" if result_number != 0 else "none")
-
-    win = False
-    multiplier = 0
-    if bet_type == "number":
-        win = str(result_number) == bet_value
-        multiplier = 35
-    elif bet_type == "color":
-        win = result_color == bet_value
-        multiplier = 1
-    elif bet_type == "parity":
-        win = result_parity == bet_value
-        multiplier = 1
-
-    # Deduct bet
-    new_balance = balance - amount
-    db_write("UPDATE wallets SET balance=%s WHERE user_id=%s", (new_balance, current_user.id))
-    db_write(
-        "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
-        (current_user.id, -amount, "bet", "Roulette bet"),
+    result_range = "low" if 1 <= result_number <= 18 else ("high" if 19 <= result_number <= 36 else "none")
+    result_dozen = "1st" if 1 <= result_number <= 12 else ("2nd" if 13 <= result_number <= 24 else ("3rd" if 25 <= result_number <= 36 else "none"))
+    result_column = "1" if result_number in {1,4,7,10,13,16,19,22,25,28,31,34} else (
+        "2" if result_number in {2,5,8,11,14,17,20,23,26,29,32,35} else (
+            "3" if result_number in {3,6,9,12,15,18,21,24,27,30,33,36} else "none"
+        )
     )
 
     payout = 0
-    if win:
-        payout = amount * (multiplier + 1)
+    for b in cleaned:
+        win = False
+        multiplier = 0
+        if b["type"] == "number":
+            win = str(result_number) == b["value"]
+            multiplier = 35
+        elif b["type"] == "color":
+            win = result_color == b["value"]
+            multiplier = 1
+        elif b["type"] == "parity":
+            win = result_parity == b["value"]
+            multiplier = 1
+        elif b["type"] == "range":
+            win = result_range == b["value"]
+            multiplier = 1
+        elif b["type"] == "dozen":
+            win = result_dozen == b["value"]
+            multiplier = 2
+        elif b["type"] == "column":
+            win = result_column == b["value"]
+            multiplier = 2
+
+        if win:
+            payout += b["amount"] * (multiplier + 1)
+
+    new_balance = balance - total_bet
+    db_write("UPDATE wallets SET balance=%s WHERE user_id=%s", (new_balance, current_user.id))
+    db_write(
+        "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+        (current_user.id, -total_bet, "bet", "Roulette bet"),
+    )
+
+    if payout > 0:
         new_balance += payout
         db_write("UPDATE wallets SET balance=%s WHERE user_id=%s", (new_balance, current_user.id))
         db_write(
@@ -457,14 +539,16 @@ def roulette_spin():
 
     db_write(
         "INSERT INTO roulette_sessions (user_id, bet, bet_type, bet_value, result_number, win, payout) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        (current_user.id, amount, bet_type, bet_value, result_number, win, payout),
+        (current_user.id, total_bet, "multi", "mixed", result_number, payout > 0, payout),
     )
 
     return jsonify({
         "result_number": result_number,
         "result_color": result_color,
         "result_parity": result_parity,
-        "win": win,
+        "result_range": result_range,
+        "result_dozen": result_dozen,
+        "result_column": result_column,
         "payout": payout,
         "balance": new_balance,
     })
