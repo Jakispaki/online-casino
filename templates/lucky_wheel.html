@@ -272,7 +272,7 @@
       .then((res) => res.json().then((data) => ({ status: res.status, data })))
       .then(({ status, data }) => {
         if (!data.ok) {
-          const msg = data.error_key ? t(data.error_key, 'Not enough balance for a paid spin.') : 'Spin failed.';
+          const msg = data.error_key ? t(data.error_key, 'Not enough balance for a paid spin.') : t('wheel.spinFailed', 'Spin failed.');
           rewardBox.textContent = msg;
           spinBtn.disabled = false;
           spinning = false;
@@ -300,7 +300,7 @@
         setTimeout(finishSpin, 4300);
       })
       .catch(() => {
-        rewardBox.textContent = 'Spin failed.';
+        rewardBox.textContent = t('wheel.spinFailed', 'Spin failed.');
         spinBtn.disabled = false;
         spinning = false;
       });
