@@ -66,6 +66,64 @@
     border-radius: 14px;
     padding: 18px;
   }
+  .progress-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .progress-card {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .progress-card h4 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: #9aa2ba;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .progress-card .value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f0c061;
+  }
+  .challenge-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 13px;
+    color: #cdd2e2;
+  }
+  .challenge-bar {
+    height: 8px;
+    background: #1f2a49;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .challenge-bar span {
+    display: block;
+    height: 100%;
+    background: #2d8f5c;
+  }
+  .leaderboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .leaderboard table {
+    width: 100%;
+    font-size: 13px;
+  }
+  .leaderboard th,
+  .leaderboard td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #1f2a49;
+  }
   .stats-section h2 {
     margin-top: 0;
     font-size: 18px;
@@ -169,6 +227,38 @@
   </div>
 
   <div class="stats-section">
+    <h2>Progression</h2>
+    <div class="progress-row">
+      <div class="progress-card">
+        <h4>Level</h4>
+        <div class="value">{{ level }}</div>
+      </div>
+      <div class="progress-card">
+        <h4>XP</h4>
+        <div class="value">{{ xp }}</div>
+      </div>
+      <div class="progress-card">
+        <h4>Rank</h4>
+        <div class="value">{{ rank_title }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <h2>Daily challenges</h2>
+    {% for c in challenges %}
+      {% set progress = (c.value / c.target * 100) if c.target > 0 else 0 %}
+      <div class="challenge-item">
+        <span>{{ c.title }}</span>
+        <span>{{ c.value }}/{{ c.target }}</span>
+      </div>
+      <div class="challenge-bar">
+        <span style="width: {{ [progress, 100]|min }}%;"></span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="stats-section">
     <h2>Performance (last {{ chart_points|length }} games)</h2>
     <div class="chart">
       {% for point in chart_points %}
@@ -179,6 +269,24 @@
       {% if chart_points|length == 0 %}
         <p style="color:#9aa2ba;">No games played yet.</p>
       {% endif %}
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <h2>Personal bests</h2>
+    <div class="progress-row">
+      <div class="progress-card">
+        <h4>Highest balance</h4>
+        <div class="value">${{ "%.2f"|format(best_balance) }}</div>
+      </div>
+      <div class="progress-card">
+        <h4>Longest win streak</h4>
+        <div class="value">{{ max_streak }}</div>
+      </div>
+      <div class="progress-card">
+        <h4>Most wins</h4>
+        <div class="value">{{ most_wins }}</div>
+      </div>
     </div>
   </div>
 
@@ -194,6 +302,42 @@
           </div>
         </div>
       {% endfor %}
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <h2>Leaderboard</h2>
+    <div class="leaderboard">
+      <div>
+        <h4>Top balance</h4>
+        <table>
+          <tbody>
+            {% for u in top_balance %}
+              <tr><td>{{ u.username }}</td><td>${{ "%.2f"|format(u.balance) }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Top win rate</h4>
+        <table>
+          <tbody>
+            {% for u in top_win_rate %}
+              <tr><td>{{ u.username }}</td><td>{{ u.win_rate }}%</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Top level</h4>
+        <table>
+          <tbody>
+            {% for u in top_level %}
+              <tr><td>{{ u.username }}</td><td>Lv {{ u.level }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

@@ -61,6 +61,7 @@
 
             {% if current_user.is_authenticated %}
               <li><a href="{{ url_for('blackjack') }}">Blackjack</a></li>
+              <li><a href="{{ url_for('roulette') }}">Roulette</a></li>
               <li><a href="{{ url_for('deposit') }}">Deposit</a></li>
               <li><a href="{{ url_for('stats') }}">Statistics</a></li>
               <li><a href="{{ url_for('settings') }}">Settings</a></li>

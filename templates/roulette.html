@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  :root {
+    --felt-color: #0b1b14;
+    --felt-border: #1f3b2c;
+  }
+  .roulette-wrapper {
+    max-width: 1100px;
+    margin: 24px auto 60px;
+    padding: 0 16px;
+  }
+  .casino-topbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
+  .casino-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+  .balance-pill {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-weight: 700;
+    color: #f0c061;
+  }
+  .topbar-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .icon-btn {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #cdd2e2;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .table-area {
+    margin-top: 22px;
+    background: var(--felt-color);
+    border: 2px solid var(--felt-border);
+    border-radius: 22px;
+    padding: 22px 18px 26px;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+  .roulette-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .wheel {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #1f2a49 0deg 10deg,
+      #b31313 10deg 20deg,
+      #121826 20deg 30deg,
+      #b31313 30deg 40deg,
+      #121826 40deg 50deg,
+      #b31313 50deg 60deg,
+      #121826 60deg 70deg,
+      #b31313 70deg 80deg,
+      #121826 80deg 90deg,
+      #b31313 90deg 100deg,
+      #121826 100deg 110deg,
+      #b31313 110deg 120deg,
+      #121826 120deg 130deg,
+      #b31313 130deg 140deg,
+      #121826 140deg 150deg,
+      #b31313 150deg 160deg,
+      #121826 160deg 170deg,
+      #b31313 170deg 180deg,
+      #121826 180deg 190deg,
+      #b31313 190deg 200deg,
+      #121826 200deg 210deg,
+      #b31313 210deg 220deg,
+      #121826 220deg 230deg,
+      #b31313 230deg 240deg,
+      #121826 240deg 250deg,
+      #b31313 250deg 260deg,
+      #121826 260deg 270deg,
+      #b31313 270deg 280deg,
+      #121826 280deg 290deg,
+      #b31313 290deg 300deg,
+      #121826 300deg 310deg,
+      #b31313 310deg 320deg,
+      #121826 320deg 330deg,
+      #b31313 330deg 340deg,
+      #121826 340deg 350deg,
+      #b31313 350deg 360deg
+    );
+    border: 6px solid #111827;
+    position: relative;
+    margin: 0 auto;
+    transition: transform 1.5s ease-out;
+  }
+  .wheel::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: #f0c061;
+    border-radius: 50%;
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .wheel.spinning {
+    transform: rotate(720deg);
+  }
+  .bet-panel {
+    background: rgba(11, 17, 34, 0.7);
+    border: 1px solid #28314e;
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .form-control {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #f4f4f6;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 10px;
+  }
+  .result-card {
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .result-card strong { color: #f0c061; }
+  @media (min-width: 900px) {
+    .roulette-grid {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+  }
+</style>
+
+<div class="roulette-wrapper">
+  <div class="casino-topbar">
+    <div class="casino-title">Royal Ace Roulette</div>
+    <div class="balance-pill">Balance: $<span id="balance">{{ "%.2f"|format(balance) }}</span></div>
+    <div class="topbar-actions">
+      <a class="icon-btn" href="{{ url_for('blackjack') }}">Blackjack</a>
+      <a class="icon-btn" href="{{ url_for('stats') }}">Statistics</a>
+      <a class="icon-btn" href="{{ url_for('index') }}">Exit</a>
+    </div>
+  </div>
+
+  <div class="table-area">
+    <div class="roulette-grid">
+      <div>
+        <div class="wheel" id="wheel"></div>
+        <div id="spin-result" class="result-card" style="display:none;"></div>
+      </div>
+
+      <div class="bet-panel">
+        <h4>Place your bet</h4>
+        <div class="form-group">
+          <label for="bet-amount">Amount ($)</label>
+          <input id="bet-amount" type="number" class="form-control" value="10" min="1" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="bet-type">Bet type</label>
+          <select id="bet-type" class="form-control">
+            <option value="color">Color</option>
+            <option value="parity">Odd / Even</option>
+            <option value="number">Single number</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bet-value">Bet value</label>
+          <input id="bet-value" class="form-control" placeholder="red / black / odd / even / 7">
+        </div>
+        <button class="btn-auth" onclick="spinRoulette()">Spin</button>
+        <p style="margin-top:10px; font-size:12px; color:#9aa2ba;">Payouts: color/parity 1:1, number 35:1.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const wheel = document.getElementById('wheel');
+  const resultBox = document.getElementById('spin-result');
+
+  function spinRoulette() {
+    const amount = document.getElementById('bet-amount').value;
+    const betType = document.getElementById('bet-type').value;
+    const betValue = document.getElementById('bet-value').value.trim().toLowerCase();
+
+    if (!betValue) {
+      alert('Please enter a bet value.');
+      return;
+    }
+
+    wheel.classList.remove('spinning');
+    void wheel.offsetWidth;
+    wheel.classList.add('spinning');
+
+    const formData = new FormData();
+    formData.append('amount', amount);
+    formData.append('bet_type', betType);
+    formData.append('bet_value', betValue);
+
+    fetch('/roulette/spin', { method: 'POST', body: formData })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `Result: <strong>${data.result_number}</strong> (${data.result_color})<br>` +
+          (data.win ? `You win! Payout: $${data.payout.toFixed(2)}` : 'No win this round.') +
+          `<br>New balance: $${data.balance.toFixed(2)}`;
+        document.getElementById('balance').textContent = data.balance.toFixed(2);
+      })
+      .catch(() => alert('Spin failed. Try again.'));
+  }
+</script>
+{% endblock %}

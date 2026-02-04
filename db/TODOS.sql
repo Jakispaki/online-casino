@@ -42,3 +42,16 @@ CREATE TABLE transactions (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE roulette_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    bet DECIMAL(10, 2) NOT NULL,
+    bet_type VARCHAR(50) NOT NULL,
+    bet_value VARCHAR(50) NOT NULL,
+    result_number INT NOT NULL,
+    win BOOLEAN DEFAULT FALSE,
+    payout DECIMAL(10, 2) DEFAULT 0.00,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
