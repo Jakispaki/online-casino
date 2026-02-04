@@ -285,6 +285,7 @@
         spinTo(data.segment_index);
         const onDone = () => {
           wheelRotor.removeEventListener('transitionend', onDone);
+          wheelRotor.style.transform = `rotate(${currentRotation}deg)`;
           wheelRotor.classList.remove('spinning');
           showReward(data.reward_type, data.reward_value);
           document.getElementById('balance').textContent = Number(data.balance).toFixed(2);
