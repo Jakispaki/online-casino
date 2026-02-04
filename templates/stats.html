@@ -246,15 +246,15 @@
     <h2 data-i18n="stats.progression">Progression</h2>
     <div class="progress-row">
       <div class="progress-card">
-        <h4>Level</h4>
+        <h4 data-i18n="stats.level">Level</h4>
         <div class="value">{{ level }}</div>
       </div>
       <div class="progress-card">
-        <h4>XP</h4>
+        <h4 data-i18n="stats.xp">XP</h4>
         <div class="value">{{ xp }}</div>
       </div>
       <div class="progress-card">
-        <h4>Rank</h4>
+        <h4 data-i18n="stats.rank">Rank</h4>
         <div class="value">{{ rank_title }}</div>
       </div>
     </div>
@@ -295,7 +295,14 @@
   </div>
 
   <div class="stats-section">
-    <h2 data-i18n="stats.performance">Performance (last {{ chart_points|length }} games)</h2>
+    <h2>
+      <span data-i18n="stats.performance">Performance</span>
+      <span class="event-meta">
+        <span data-i18n="stats.lastGamesPrefix">(last</span>
+        {{ chart_points|length }}
+        <span data-i18n="stats.lastGamesSuffix">games)</span>
+      </span>
+    </h2>
     <div class="chart">
       {% for point in chart_points %}
         <div class="bar {% if point.result == 'player_win' %}win{% elif point.result == 'push' %}push{% else %}loss{% endif %}" data-height="{{ 20 + (point.value * 100) }}">
@@ -334,7 +341,11 @@
           <h3>{{ achievement.title }}</h3>
           <p>{{ achievement.desc }}</p>
           <div class="badge {% if achievement.unlocked %}unlocked{% endif %}">
-            {% if achievement.unlocked %}Unlocked{% else %}Locked{% endif %}
+            {% if achievement.unlocked %}
+              <span data-i18n="stats.unlocked">Unlocked</span>
+            {% else %}
+              <span data-i18n="stats.locked">Locked</span>
+            {% endif %}
           </div>
         </div>
       {% endfor %}
@@ -345,7 +356,7 @@
     <h2 data-i18n="stats.leaderboard">Leaderboard</h2>
     <div class="leaderboard">
       <div>
-        <h4>Top balance</h4>
+        <h4 data-i18n="stats.topBalance">Top balance</h4>
         <table>
           <tbody>
             {% for u in top_balance %}
@@ -355,7 +366,7 @@
         </table>
       </div>
       <div>
-        <h4>Top win rate</h4>
+        <h4 data-i18n="stats.topWinRate">Top win rate</h4>
         <table>
           <tbody>
             {% for u in top_win_rate %}
@@ -365,11 +376,11 @@
         </table>
       </div>
       <div>
-        <h4>Top level</h4>
+        <h4 data-i18n="stats.topLevel">Top level</h4>
         <table>
           <tbody>
             {% for u in top_level %}
-              <tr><td>{{ u.username }}</td><td>Lv {{ u.level }}</td></tr>
+              <tr><td>{{ u.username }}</td><td><span data-i18n="stats.levelShort">Lv</span> {{ u.level }}</td></tr>
             {% endfor %}
           </tbody>
         </table>

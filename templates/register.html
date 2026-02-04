@@ -117,12 +117,12 @@
 
 <div class="auth-wrapper">
   <div class="auth-header">
-    <h1>Create your Royal Ace account</h1>
-    <p>Fast registration with a strong 18+ check.</p>
+    <h1 data-i18n="register.title">Create your Royal Ace account</h1>
+    <p data-i18n="register.subtitle">Fast registration with a strong 18+ check.</p>
   </div>
 
   <div class="auth-card">
-    <h2>Register</h2>
+    <h2 data-i18n="register.heading">Register</h2>
 
     {% if error %}
       <p class="error">{{ error }}</p>
@@ -130,43 +130,46 @@
 
     <form action="{{ url_for('register') }}" method="post">
       <div class="form-group">
-        <label for="reg-username">Username</label>
+        <label for="reg-username" data-i18n="register.username">Username</label>
         <input
           id="reg-username"
           type="text"
           class="form-control"
           name="username"
+          data-i18n-placeholder="register.username"
           placeholder="LuckyPlayer"
           required
         >
       </div>
 
       <div class="form-group">
-        <label for="reg-email">Email</label>
+        <label for="reg-email" data-i18n="register.email">Email</label>
         <input
           id="reg-email"
           type="email"
           class="form-control"
           name="email"
+          data-i18n-placeholder="register.email"
           placeholder="you@example.com"
           required
         >
       </div>
 
       <div class="form-group">
-        <label for="reg-password">Password</label>
+        <label for="reg-password" data-i18n="register.password">Password</label>
         <input
           id="reg-password"
           type="password"
           class="form-control"
           name="password"
+          data-i18n-placeholder="register.passwordHint"
           placeholder="Create a secure password"
           required
         >
       </div>
 
       <div class="form-group">
-        <label for="reg-dob">Date of birth</label>
+        <label for="reg-dob" data-i18n="register.dob">Date of birth</label>
         <input
           id="reg-dob"
           type="date"
@@ -177,50 +180,47 @@
       </div>
 
       <div class="form-group">
-        <label for="reg-country">Country</label>
+        <label for="reg-country" data-i18n="register.country">Country</label>
         <select id="reg-country" name="country" class="form-control" required>
-          <option value="" disabled selected>Select your country</option>
-          <option>Germany</option>
-          <option>Austria</option>
-          <option>Switzerland</option>
-          <option>United Kingdom</option>
-          <option>United States</option>
-          <option>Canada</option>
-          <option>Australia</option>
-          <option>Other</option>
+          <option value="" disabled selected data-i18n="register.selectCountry">Select your country</option>
+          <option data-i18n="country.germany">Germany</option>
+          <option data-i18n="country.austria">Austria</option>
+          <option data-i18n="country.swiss">Switzerland</option>
+          <option data-i18n="country.uk">United Kingdom</option>
+          <option data-i18n="country.us">United States</option>
+          <option data-i18n="country.canada">Canada</option>
+          <option data-i18n="country.australia">Australia</option>
+          <option data-i18n="country.other">Other</option>
         </select>
       </div>
 
       <label class="auth-checkbox">
         <input type="checkbox" name="age_confirm" required>
         <span>
-          I confirm that I am 18 years or older
+          <span data-i18n="register.ageConfirm">I confirm that I am 18 years or older</span>
           <span class="age-badge">18+</span>
         </span>
       </label>
 
       <label class="auth-checkbox">
         <input type="checkbox" name="privacy_confirm" required>
-        <span>I agree to the Privacy Policy</span>
+        <span data-i18n="register.privacy">I agree to the Privacy Policy</span>
       </label>
 
       <label class="auth-checkbox">
         <input type="checkbox" name="ads_opt_in">
-        <span>Yes, you may send me casino offers and promotions</span>
+        <span data-i18n="register.ads">Yes, you may send me casino offers and promotions</span>
       </label>
 
-      <button type="submit" class="btn btn-block btn-auth">Create account</button>
+      <button type="submit" class="btn btn-block btn-auth" data-i18n="register.create">Create account</button>
     </form>
 
     <div class="auth-footer">
-      Already have an account? <a class="auth-link" href="{{ url_for('login') }}">Sign in</a>
+      <span data-i18n="register.haveAccount">Already have an account?</span>
+      <a class="auth-link" href="{{ url_for('login') }}" data-i18n="register.signIn">Sign in</a>
     </div>
   </div>
 
-  <p class="auth-disclaimer">
-    Play responsibly. If gambling stops being fun, please seek help. We protect your data in
-    accordance with strict privacy standards, and all connections are secured with
-    <strong>SSL encryption</strong>.
-  </p>
+  <p class="auth-disclaimer" data-i18n-html="disclaimer.html"></p>
 </div>
 {% endblock %}

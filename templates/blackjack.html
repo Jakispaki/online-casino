@@ -232,48 +232,48 @@
 
 <div class="casino-wrapper">
   <div class="casino-topbar">
-    <div class="casino-title">Royal Ace Blackjack</div>
+    <div class="casino-title" data-i18n="blackjack.title">Royal Ace Blackjack</div>
     <div class="balance-pill"><span data-i18n="ui.balance">Balance</span>: <span id="balance">${{ "%.2f"|format(balance) }}</span></div>
     <div class="topbar-actions">
       <a class="icon-btn" data-i18n="ui.settings" href="{{ url_for('settings') }}">Settings</a>
       <a class="icon-btn" data-i18n="ui.addFunds" href="{{ url_for('deposit') }}">Add funds</a>
       <a class="icon-btn" data-i18n="ui.roulette" href="{{ url_for('roulette') }}">Roulette</a>
-      <button class="icon-btn tutorial-btn" id="tutorial-btn" type="button">Tutorial</button>
+      <button class="icon-btn tutorial-btn" id="tutorial-btn" type="button" data-i18n="tutorial.button">Tutorial</button>
     </div>
   </div>
 
   <div class="table-area">
     <div class="table-header">
-      <span>Blackjack table</span>
-      <span>Dealer stands on 17</span>
+      <span data-i18n="blackjack.table">Blackjack table</span>
+      <span data-i18n="blackjack.rule">Dealer stands on 17</span>
     </div>
 
     <div id="bet-section" class="bet-panel">
-      <label for="bet">Bet Amount ($)</label>
+      <label for="bet" data-i18n="blackjack.bet">Bet Amount ($)</label>
       <input type="number" class="form-control" id="bet" value="10" min="1" step="10">
-      <button class="btn-auth" style="margin-top: 10px;" onclick="startGame()">Deal cards</button>
+      <button class="btn-auth" style="margin-top: 10px;" onclick="startGame()" data-i18n="blackjack.deal">Deal cards</button>
     </div>
 
     <div id="game-section" style="display: none;">
-      <div class="hand-label">Dealer</div>
+      <div class="hand-label" data-i18n="blackjack.dealer">Dealer</div>
       <div id="dealer-cards" class="card-row"></div>
-      <div>Value: <span class="hand-value" id="dealer-value">?</span></div>
+      <div><span data-i18n="blackjack.value">Value</span>: <span class="hand-value" id="dealer-value">?</span></div>
 
       <hr style="border-color:#1f3b2c; margin: 16px 0;">
 
-      <div class="hand-label">Player</div>
+      <div class="hand-label" data-i18n="blackjack.player">Player</div>
       <div id="player-cards" class="card-row"></div>
-      <div>Value: <span class="hand-value" id="player-value">0</span></div>
+      <div><span data-i18n="blackjack.value">Value</span>: <span class="hand-value" id="player-value">0</span></div>
 
       <div id="game-status" class="status-area"></div>
 
       <div id="action-buttons" class="action-bar">
-        <button class="btn-action btn-hit" onclick="playerHit()">Hit</button>
-        <button class="btn-action btn-stand" onclick="playerStand()">Stand</button>
+        <button class="btn-action btn-hit" onclick="playerHit()" data-i18n="blackjack.hit">Hit</button>
+        <button class="btn-action btn-stand" onclick="playerStand()" data-i18n="blackjack.stand">Stand</button>
       </div>
 
       <div id="play-again" style="display: none; margin-top: 16px;">
-        <button class="btn-action btn-again" onclick="location.reload()">Play Again</button>
+        <button class="btn-action btn-again" onclick="location.reload()" data-i18n="blackjack.again">Play Again</button>
       </div>
     </div>
   </div>
@@ -281,11 +281,11 @@
 
 <div class="tutorial-overlay" id="tutorial-overlay" data-show="{{ 'true' if show_tutorial else 'false' }}">
   <div class="tutorial-card">
-    <h3 id="tutorial-title">Welcome to Blackjack</h3>
+    <h3 id="tutorial-title" data-i18n="blackjack.tutorialTitle">Welcome to Blackjack</h3>
     <p id="tutorial-text">Set your bet and press Deal to start.</p>
     <div class="tutorial-actions">
-      <button class="btn-skip" id="tutorial-close">Close</button>
-      <button class="btn-tutorial" id="tutorial-next">Next</button>
+      <button class="btn-skip" id="tutorial-close" data-i18n="tutorial.close">Close</button>
+      <button class="btn-tutorial" id="tutorial-next" data-i18n="tutorial.next">Next</button>
     </div>
   </div>
 </div>
@@ -339,7 +339,8 @@ function startGame() {
   const bet = parseFloat(document.getElementById('bet').value);
   
   if (isNaN(bet) || bet <= 0) {
-    alert('Enter a valid bet amount');
+    const t = window.getTranslation || ((key, fallback) => fallback || key);
+    alert(t('blackjack.invalidBet', 'Enter a valid bet amount'));
     return;
   }
 
@@ -431,18 +432,18 @@ function updateDisplay(data) {
   if (data.finished) {
     let resultText = '';
     let resultClass = '';
-    
+    const t = window.getTranslation || ((key, fallback) => fallback || key);
     if (data.result === 'player_bust') {
-      resultText = '💥 BUST! Game Over!';
+      resultText = t('blackjack.bust', '💥 BUST! Game Over!');
       resultClass = 'danger';
     } else if (data.result === 'player_win') {
-      resultText = '🎉 YOU WIN!';
+      resultText = t('blackjack.win', '🎉 YOU WIN!');
       resultClass = 'success';
     } else if (data.result === 'dealer_win') {
-      resultText = '😞 Dealer Wins';
+      resultText = t('blackjack.dealerWin', '😞 Dealer Wins');
       resultClass = 'warning';
     } else if (data.result === 'push') {
-      resultText = '🤝 Push - Tie!';
+      resultText = t('blackjack.push', '🤝 Push - Tie!');
       resultClass = 'info';
     }
     
@@ -460,7 +461,7 @@ function updateDisplay(data) {
       'Track your balance and results at the top.'
     ],
     de: [
-      'Wahle deinen Einsatz und drucke Deal zum Starten.',
+      'Wahle deinen Einsatz und druecke Karten geben zum Starten.',
       'Hit zieht eine weitere Karte.',
       'Stand beendet deinen Zug und der Dealer spielt.',
       'Behalte dein Guthaben oben im Blick.'
@@ -480,7 +481,7 @@ function updateDisplay(data) {
     const t = window.getTranslation || ((key, fallback) => fallback || key);
     const lang = window.currentLang || 'en';
     const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
-    title.textContent = lang === 'de' ? 'Willkommen bei Blackjack' : 'Welcome to Blackjack';
+    title.textContent = t('blackjack.tutorialTitle', 'Welcome to Blackjack');
     text.textContent = steps[tutorialIndex];
     closeBtn.textContent = t('tutorial.close', 'Close');
     nextBtn.textContent = t('tutorial.next', 'Next');

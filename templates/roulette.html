@@ -412,12 +412,12 @@
 
 <div class="roulette-wrapper">
   <div class="casino-topbar">
-    <div class="casino-title">Royal Ace Roulette</div>
+    <div class="casino-title" data-i18n="roulette.title">Royal Ace Roulette</div>
     <div class="balance-pill"><span data-i18n="ui.balance">Balance</span>: $<span id="balance">{{ "%.2f"|format(balance) }}</span></div>
     <div class="topbar-actions">
       <a class="icon-btn" data-i18n="ui.settings" href="{{ url_for('settings') }}">Settings</a>
       <a class="icon-btn" data-i18n="ui.help" href="{{ url_for('help_page') }}">Help</a>
-      <button class="icon-btn tutorial-btn" id="tutorial-btn" type="button">Tutorial</button>
+      <button class="icon-btn tutorial-btn" id="tutorial-btn" type="button" data-i18n="tutorial.button">Tutorial</button>
     </div>
   </div>
 
@@ -428,7 +428,7 @@
           <div class="wheel" id="wheel"></div>
           <div class="wheel-numbers" id="wheel-numbers"></div>
         </div>
-        <div id="message" class="status-bar">Place your bets.</div>
+        <div id="message" class="status-bar" data-i18n="roulette.placeBets">Place your bets.</div>
         <div id="spin-result" class="status-bar" style="display:none;"></div>
       </div>
 
@@ -448,23 +448,23 @@
 
             <div class="outside-bets">
               <div class="bet-cell" data-type="range" data-value="low">1-18<span class="bet-amount"></span></div>
-              <div class="bet-cell" data-type="parity" data-value="even">Even<span class="bet-amount"></span></div>
-              <div class="bet-cell red" data-type="color" data-value="red">Red<span class="bet-amount"></span></div>
-              <div class="bet-cell black" data-type="color" data-value="black">Black<span class="bet-amount"></span></div>
-              <div class="bet-cell" data-type="parity" data-value="odd">Odd<span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="parity" data-value="even"><span data-i18n="roulette.even">Even</span><span class="bet-amount"></span></div>
+              <div class="bet-cell red" data-type="color" data-value="red"><span data-i18n="roulette.red">Red</span><span class="bet-amount"></span></div>
+              <div class="bet-cell black" data-type="color" data-value="black"><span data-i18n="roulette.black">Black</span><span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="parity" data-value="odd"><span data-i18n="roulette.odd">Odd</span><span class="bet-amount"></span></div>
               <div class="bet-cell" data-type="range" data-value="high">19-36<span class="bet-amount"></span></div>
             </div>
 
             <div class="dozen-row">
-              <div class="bet-cell" data-type="dozen" data-value="1st">1st 12<span class="bet-amount"></span></div>
-              <div class="bet-cell" data-type="dozen" data-value="2nd">2nd 12<span class="bet-amount"></span></div>
-              <div class="bet-cell" data-type="dozen" data-value="3rd">3rd 12<span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="dozen" data-value="1st"><span data-i18n="roulette.dozen1">1st 12</span><span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="dozen" data-value="2nd"><span data-i18n="roulette.dozen2">2nd 12</span><span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="dozen" data-value="3rd"><span data-i18n="roulette.dozen3">3rd 12</span><span class="bet-amount"></span></div>
             </div>
 
             <div class="column-row">
-              <div class="bet-cell" data-type="column" data-value="1">Column 1<span class="bet-amount"></span></div>
-              <div class="bet-cell" data-type="column" data-value="2">Column 2<span class="bet-amount"></span></div>
-              <div class="bet-cell" data-type="column" data-value="3">Column 3<span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="column" data-value="1"><span data-i18n="roulette.column1">Column 1</span><span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="column" data-value="2"><span data-i18n="roulette.column2">Column 2</span><span class="bet-amount"></span></div>
+              <div class="bet-cell" data-type="column" data-value="3"><span data-i18n="roulette.column3">Column 3</span><span class="bet-amount"></span></div>
             </div>
           </div>
         </div>
@@ -478,56 +478,56 @@
             <div class="chip" data-value="100">$100</div>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn-ghost" id="clear-bet" type="button">Clear Bet</button>
-            <button class="btn-auth btn-primary" id="spin-btn" type="button">Spin Wheel</button>
+            <button class="btn-ghost" id="clear-bet" type="button" data-i18n="roulette.clear">Clear Bet</button>
+            <button class="btn-auth btn-primary" id="spin-btn" type="button" data-i18n="roulette.spin">Spin Wheel</button>
           </div>
         </div>
 
         <div class="side-panel">
-          <h4>Current bets</h4>
-          <div id="current-bets" style="font-size:13px; color:#cdd2e2;">No bets placed.</div>
+          <h4 data-i18n="roulette.currentBets">Current bets</h4>
+          <div id="current-bets" style="font-size:13px; color:#cdd2e2;" data-i18n="roulette.noBets">No bets placed.</div>
         </div>
 
         <div class="side-panel">
-          <h4>Recent numbers</h4>
+          <h4 data-i18n="roulette.recent">Recent numbers</h4>
           <div class="history" id="history"></div>
         </div>
 
         <div class="side-panel">
-          <h4>Personal best</h4>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Highest balance: ${{ "%.2f"|format(best_balance) }}</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Longest win streak: {{ max_streak }}</p>
-          <p style="margin:0; font-size:13px; color:#cdd2e2;">Most wins: {{ most_wins }}</p>
+          <h4 data-i18n="roulette.personalBest">Personal best</h4>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;"><span data-i18n="roulette.highestBalance">Highest balance</span>: ${{ "%.2f"|format(best_balance) }}</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;"><span data-i18n="roulette.longestStreak">Longest win streak</span>: {{ max_streak }}</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;"><span data-i18n="roulette.mostWins">Most wins</span>: {{ most_wins }}</p>
         </div>
 
         <div class="side-panel bet-guide">
-          <h4>Bet guide</h4>
+          <h4 data-i18n="roulette.betGuide">Bet guide</h4>
           <ul class="bet-guide-list">
-            <li><span>1st 12</span> numbers 1-12</li>
-            <li><span>2nd 12</span> numbers 13-24</li>
-            <li><span>3rd 12</span> numbers 25-36</li>
-            <li><span>Column 1</span> 1,4,7,...,34</li>
-            <li><span>Column 2</span> 2,5,8,...,35</li>
-            <li><span>Column 3</span> 3,6,9,...,36</li>
-            <li><span>1-18 / 19-36</span> low or high</li>
-            <li><span>Odd / Even</span> parity</li>
-            <li><span>Red / Black</span> color</li>
+            <li data-i18n-html="roulette.guide1"><span>1st 12</span> numbers 1-12</li>
+            <li data-i18n-html="roulette.guide2"><span>2nd 12</span> numbers 13-24</li>
+            <li data-i18n-html="roulette.guide3"><span>3rd 12</span> numbers 25-36</li>
+            <li data-i18n-html="roulette.guide4"><span>Column 1</span> 1,4,7,...,34</li>
+            <li data-i18n-html="roulette.guide5"><span>Column 2</span> 2,5,8,...,35</li>
+            <li data-i18n-html="roulette.guide6"><span>Column 3</span> 3,6,9,...,36</li>
+            <li data-i18n-html="roulette.guide7"><span>1-18 / 19-36</span> low or high</li>
+            <li data-i18n-html="roulette.guide8"><span>Odd / Even</span> parity</li>
+            <li data-i18n-html="roulette.guide9"><span>Red / Black</span> color</li>
           </ul>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="footer-note">18+ only. Please gamble responsibly. This is a demo environment.</p>
+  <p class="footer-note" data-i18n="roulette.footer">18+ only. Please gamble responsibly. This is a demo environment.</p>
 </div>
 
   <div class="tutorial-overlay" id="tutorial-overlay" data-show="{{ 'true' if show_tutorial else 'false' }}">
   <div class="tutorial-card">
-    <h3 id="tutorial-title">Welcome to Roulette</h3>
+    <h3 id="tutorial-title" data-i18n="roulette.tutorialTitle">Welcome to Roulette</h3>
     <p id="tutorial-text">Select a chip value, then tap a bet area.</p>
     <div class="tutorial-actions">
-      <button class="btn-skip" id="tutorial-close">Close</button>
-      <button class="btn-tutorial" id="tutorial-next">Next</button>
+      <button class="btn-skip" id="tutorial-close" data-i18n="tutorial.close">Close</button>
+      <button class="btn-tutorial" id="tutorial-next" data-i18n="tutorial.next">Next</button>
     </div>
   </div>
 </div>
@@ -724,7 +724,7 @@
     de: [
       'Wahle einen Chip und tippe auf ein Einsatzfeld.',
       'Nutze die Chips unten, um deinen Einsatz zu andern.',
-      'Drucke Spin Wheel, um die Runde zu starten.',
+      'Druecke Rad drehen, um die Runde zu starten.',
       'Gewinnende Einsatze leuchten auf und dein Guthaben aktualisiert sich.'
     ]
   };
@@ -742,7 +742,7 @@
     const t = window.getTranslation || ((key, fallback) => fallback || key);
     const lang = window.currentLang || 'en';
     const steps = tutorialStepsByLang[lang] || tutorialStepsByLang.en;
-    title.textContent = lang === 'de' ? 'Willkommen bei Roulette' : 'Welcome to Roulette';
+    title.textContent = t('roulette.tutorialTitle', 'Welcome to Roulette');
     text.textContent = steps[tutorialIndex];
     closeBtn.textContent = t('tutorial.close', 'Close');
     nextBtn.textContent = t('tutorial.next', 'Next');
