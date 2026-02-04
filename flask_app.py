@@ -323,6 +323,40 @@ def stats():
         {"title": "Play 10 rounds", "target": 10, "value": daily_games},
     ]
 
+    # Event challenges (time-limited)
+    now = datetime.utcnow()
+    events = [
+        {
+            "title": "Weekend High Stakes",
+            "desc": "Play 10 rounds during the event.",
+            "start": now - timedelta(hours=12),
+            "end": now + timedelta(hours=36),
+            "target": 10,
+            "value": daily_games,
+        },
+        {
+            "title": "Sharpshooter",
+            "desc": "Win 3 rounds before the event ends.",
+            "start": now - timedelta(hours=6),
+            "end": now + timedelta(hours=18),
+            "target": 3,
+            "value": daily_wins,
+        },
+    ]
+
+    event_challenges = []
+    for e in events:
+        remaining = max(0, int((e["end"] - now).total_seconds()))
+        event_challenges.append({
+            "title": e["title"],
+            "desc": e["desc"],
+            "start": e["start"].strftime("%Y-%m-%d %H:%M"),
+            "end": e["end"].strftime("%Y-%m-%d %H:%M"),
+            "remaining": remaining,
+            "target": e["target"],
+            "value": e["value"],
+        })
+
     # Personal bests
     current_balance = _wallet_balance(current_user.id)
     best_balance = _compute_personal_best_balance(current_user.id, current_balance)
@@ -371,6 +405,7 @@ def stats():
         level=level,
         rank_title=rank_title,
         challenges=challenges,
+        event_challenges=event_challenges,
         best_balance=best_balance,
         max_streak=max_streak,
         most_wins=most_wins,

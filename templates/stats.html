@@ -110,6 +110,22 @@
     height: 100%;
     background: #2d8f5c;
   }
+  .event-card {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .event-card h4 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .event-meta {
+    font-size: 12px;
+    color: #9aa2ba;
+  }
   .leaderboard {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -259,6 +275,26 @@
   </div>
 
   <div class="stats-section">
+    <h2>Event challenges</h2>
+    {% for e in event_challenges %}
+      {% set progress = (e.value / e.target * 100) if e.target > 0 else 0 %}
+      <div class="event-card" data-remaining="{{ e.remaining }}">
+        <h4>{{ e.title }}</h4>
+        <p class="event-meta">{{ e.desc }}</p>
+        <p class="event-meta">Start: {{ e.start }} | End: {{ e.end }}</p>
+        <p class="event-meta">Time left: <span class="countdown"></span></p>
+        <div class="challenge-item">
+          <span>Progress</span>
+          <span>{{ e.value }}/{{ e.target }}</span>
+        </div>
+        <div class="challenge-bar">
+          <span style="width: {{ [progress, 100]|min }}%;"></span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="stats-section">
     <h2>Performance (last {{ chart_points|length }} games)</h2>
     <div class="chart">
       {% for point in chart_points %}
@@ -341,4 +377,23 @@
     </div>
   </div>
 </div>
+<script>
+  function formatRemaining(seconds) {
+    const s = Math.max(0, seconds);
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    return `${d}d ${h}h ${m}m`;
+  }
+
+  document.querySelectorAll('.event-card').forEach((card) => {
+    const countdownEl = card.querySelector('.countdown');
+    let remaining = parseInt(card.getAttribute('data-remaining'), 10) || 0;
+    countdownEl.textContent = formatRemaining(remaining);
+    setInterval(() => {
+      remaining -= 60;
+      countdownEl.textContent = formatRemaining(remaining);
+    }, 60000);
+  });
+</script>
 {% endblock %}
