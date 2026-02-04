@@ -22,11 +22,12 @@ logging.basicConfig(
 # Load .env variables
 load_dotenv()
 W_SECRET = os.getenv("W_SECRET")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Init flask app
 app = Flask(__name__)
 app.config["DEBUG"] = True
-app.secret_key = "supersecret"
+app.secret_key = SECRET_KEY or "supersecret"
 
 # Init auth
 login_manager.init_app(app)
@@ -34,9 +35,15 @@ login_manager.login_view = "login"
 
 # DON'T CHANGE
 def is_valid_signature(x_hub_signature, data, private_key):
-    hash_algorithm, github_signature = x_hub_signature.split('=', 1)
+    if not x_hub_signature or not private_key:
+        return False
+    if "=" not in x_hub_signature:
+        return False
+    hash_algorithm, github_signature = x_hub_signature.split("=", 1)
     algorithm = hashlib.__dict__.get(hash_algorithm)
-    encoded_key = bytes(private_key, 'latin-1')
+    if not algorithm:
+        return False
+    encoded_key = bytes(private_key, "latin-1")
     mac = hmac.new(encoded_key, msg=data, digestmod=algorithm)
     return hmac.compare_digest(mac.hexdigest(), github_signature)
 
@@ -86,7 +93,11 @@ def register():
         age_confirm = request.form.get("age_confirm")
         privacy_confirm = request.form.get("privacy_confirm")
 
-        if not email:
+        if not username:
+            error = "Please enter a username."
+        elif not password:
+            error = "Please enter a password."
+        elif not email:
             error = "Please enter a valid email address."
         elif not age_confirm or not privacy_confirm:
             error = "Please confirm the 18+ notice and Privacy Policy."

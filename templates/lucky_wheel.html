@@ -260,7 +260,7 @@
 
   function showReward(type, value) {
     if (type === 'money') {
-      rewardBox.textContent = t('wheel.rewardMoney', 'You won ${{amount}}!').replace('{amount}', value).replace('{{amount}}', value);
+      rewardBox.textContent = t('wheel.rewardMoney', 'You won ${amount}!').replace('{amount}', value);
     } else if (type === 'xp') {
       rewardBox.textContent = t('wheel.rewardXp', 'You gained {amount} XP!').replace('{amount}', value);
     } else {
