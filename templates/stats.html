@@ -72,6 +72,32 @@
     gap: 12px;
     margin-top: 12px;
   }
+  .rank-panel {
+    margin-top: 12px;
+    display: none;
+    background: rgba(11, 17, 34, 0.7);
+    border: 1px solid #28314e;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 13px;
+    color: #cdd2e2;
+  }
+  .rank-panel h4 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .rank-panel p {
+    margin: 0 0 8px;
+    color: #9aa2ba;
+  }
+  .rank-panel ul {
+    padding-left: 18px;
+    margin: 0;
+  }
+  .rank-panel li {
+    margin-bottom: 4px;
+  }
   .progress-card {
     background: #0b1122;
     border: 1px solid #28314e;
@@ -304,8 +330,20 @@
       </div>
       <div class="progress-card">
         <h4 data-i18n="stats.rank">Rank</h4>
-        <div class="value">{{ rank_title }}</div>
+        <div class="value" data-i18n="{{ rank_key }}">{{ rank_title }}</div>
       </div>
+    </div>
+    <button class="btn-ghost" type="button" id="rank-toggle" data-i18n="stats.showRanks">Show rank meanings</button>
+    <div class="rank-panel" id="rank-panel">
+      <h4 data-i18n="stats.rankInfoTitle">Rank guide</h4>
+      <p data-i18n="stats.rankInfoDesc">Levels are based on XP earned from wins and total games.</p>
+      <ul>
+        <li data-i18n-html="stats.rankInfoBeginner"><strong>Beginner</strong> (Level 1-4)</li>
+        <li data-i18n-html="stats.rankInfoIntermediate"><strong>Intermediate</strong> (Level 5-9)</li>
+        <li data-i18n-html="stats.rankInfoAdvanced"><strong>Advanced</strong> (Level 10-14)</li>
+        <li data-i18n-html="stats.rankInfoPro"><strong>Pro</strong> (Level 15-19)</li>
+        <li data-i18n-html="stats.rankInfoHighRoller"><strong>High Roller</strong> (Level 20+)</li>
+      </ul>
     </div>
   </div>
 
@@ -470,5 +508,18 @@
     const height = parseFloat(bar.getAttribute('data-height')) || 20;
     bar.style.height = `${height}px`;
   });
+
+  const rankToggle = document.getElementById('rank-toggle');
+  const rankPanel = document.getElementById('rank-panel');
+  if (rankToggle && rankPanel) {
+    rankToggle.addEventListener('click', () => {
+      const isOpen = rankPanel.style.display === 'block';
+      rankPanel.style.display = isOpen ? 'none' : 'block';
+      rankToggle.textContent = window.getTranslation(
+        isOpen ? 'stats.showRanks' : 'stats.hideRanks',
+        isOpen ? 'Show rank meanings' : 'Hide rank meanings'
+      );
+    });
+  }
 </script>
 {% endblock %}
