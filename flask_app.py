@@ -139,6 +139,12 @@ def blackjack():
     return render_template("blackjack.html", balance=balance)
 
 
+@app.route("/settings", methods=["GET"])
+@login_required
+def settings():
+    return render_template("settings.html")
+
+
 @app.post("/blackjack/new")
 @login_required
 def blackjack_new():

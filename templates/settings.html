@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  .settings-wrapper {
+    max-width: 720px;
+    margin: 28px auto 60px;
+    padding: 0 16px;
+  }
+  .settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
+  .settings-header h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .settings-card {
+    margin-top: 18px;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #202a46;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row label {
+    font-size: 14px;
+    color: #d6d9e2;
+    font-weight: 600;
+  }
+  .form-control {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #f4f4f6;
+    border-radius: 10px;
+    padding: 8px 10px;
+    min-width: 180px;
+  }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #c8ccda;
+  }
+  .toggle input {
+    accent-color: #d8a748;
+  }
+  .settings-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 10px;
+  }
+  .btn-ghost {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #cdd2e2;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .settings-note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #9aa2ba;
+  }
+</style>
+
+<div class="settings-wrapper">
+  <div class="settings-header">
+    <h1>Game Settings</h1>
+    <a class="btn-ghost" href="{{ url_for('blackjack') }}">Back to table</a>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-row">
+      <label>Sound effects</label>
+      <div class="toggle">
+        <input type="checkbox" checked>
+        <span>On</span>
+      </div>
+    </div>
+    <div class="settings-row">
+      <label>Dealer speed</label>
+      <select class="form-control">
+        <option>Normal</option>
+        <option>Fast</option>
+        <option>Slow</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <label>Table theme</label>
+      <select class="form-control">
+        <option>Classic Green</option>
+        <option>Midnight Blue</option>
+        <option>Velvet Red</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <label>Card size</label>
+      <select class="form-control">
+        <option>Standard</option>
+        <option>Large</option>
+        <option>Compact</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="settings-actions">
+    <button class="btn-ghost" type="button">Reset</button>
+    <button class="btn-auth" type="button">Save</button>
+  </div>
+  <p class="settings-note">Settings are visual only and do not change gameplay yet.</p>
+</div>
+{% endblock %}
