@@ -2,75 +2,281 @@
 
 {% block content %}
 <style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
   .auth-wrapper {
-    max-width: 400px;
-    margin: 50px auto;
+    max-width: 1040px;
+    margin: 40px auto 60px;
+    padding: 0 16px;
+  }
+  .auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .auth-header h1 {
+    font-size: 28px;
+    margin: 0 0 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .auth-header p {
+    margin: 0;
+    color: #b9bfd1;
+  }
+  .auth-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
   .auth-card {
-    background: #ffffff;
-    padding: 30px 30px 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    padding: 24px 22px 22px;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
   }
-  .auth-title {
-    font-size: 26px;
+  .auth-card h2 {
+    font-size: 20px;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  .form-group label {
+    color: #d6d9e2;
     font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 20px;
-  }
-  .error { color: red; margin-bottom: 15px; }
-  .auth-footer-text {
     font-size: 13px;
-    margin-top: 15px;
+  }
+  .form-control {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #f4f4f6;
+    border-radius: 10px;
+    padding: 11px 12px;
+    box-shadow: none;
+  }
+  .form-control:focus {
+    border-color: #d8a748;
+    box-shadow: 0 0 0 2px rgba(216, 167, 72, 0.2);
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 700;
+    padding: 11px 14px;
+    border-radius: 10px;
+  }
+  .btn-auth:hover,
+  .btn-auth:focus {
+    background: linear-gradient(135deg, #f0c061, #c98e29);
+    color: #111;
+  }
+  .auth-link {
+    color: #f0c061;
+    font-weight: 600;
+  }
+  .auth-link:hover,
+  .auth-link:focus {
+    color: #ffd88b;
+    text-decoration: none;
+  }
+  .auth-help {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-top: 4px;
+    color: #b9bfd1;
+  }
+  .auth-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #c8ccda;
+  }
+  .auth-checkbox input {
+    margin-top: 3px;
+    accent-color: #d8a748;
+  }
+  .age-badge {
+    display: inline-block;
+    background: #7a1111;
+    color: #fff2f2;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    letter-spacing: 0.4px;
+  }
+  .auth-disclaimer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #9aa2ba;
     text-align: center;
   }
-  .auth-footer-text a { font-weight: 600; }
+  .auth-disclaimer strong {
+    color: #e7c27b;
+  }
+  .error { color: #ff6b6b; margin-bottom: 12px; }
+
+  @media (min-width: 900px) {
+    .auth-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .auth-card {
+      padding: 28px 26px 24px;
+    }
+  }
 </style>
 
 <div class="auth-wrapper">
-  <div class="auth-card">
-
-    <h1 class="auth-title">{{ title }}</h1>
-
-    {% if error %}
-      <p class="error">{{ error }}</p>
-    {% endif %}
-
-    <form action="{{ action }}" method="post">
-      <div class="form-group">
-        <label for="username">Benutzername</label>
-        <input
-          type="text"
-          class="form-control"
-          name="username"
-          placeholder="Benutzername"
-          required
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="password">Passwort</label>
-        <input
-          type="password"
-          class="form-control"
-          name="password"
-          placeholder="Passwort"
-          required
-        >
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block">
-        {{ button_label }}
-      </button>
-    </form>
-
-    {% if footer_text %}
-      <p class="auth-footer-text">
-        {{ footer_text }}
-        <a href="{{ footer_link_url }}">{{ footer_link_label }}</a>
-      </p>
-    {% endif %}
-
+  <div class="auth-header">
+    <h1>Welcome to Royal Ace Casino</h1>
+    <p>Secure login and registration. Simple, fast, and trusted.</p>
   </div>
+
+  <div class="auth-grid">
+    <div class="auth-card">
+      <h2>Login</h2>
+
+      {% if error and title == "In dein Konto einloggen" %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+
+      <form action="{{ url_for('login') }}" method="post">
+        <div class="form-group">
+          <label for="login-username">Email or username</label>
+          <input
+            id="login-username"
+            type="text"
+            class="form-control"
+            name="username"
+            placeholder="you@example.com"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input
+            id="login-password"
+            type="password"
+            class="form-control"
+            name="password"
+            placeholder="••••••••"
+            required
+          >
+          <div class="auth-help">
+            <span>Need help?</span>
+            <a class="auth-link" href="#">Forgot password</a>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-block btn-auth">
+          Sign in
+        </button>
+      </form>
+    </div>
+
+    <div class="auth-card">
+      <h2>Register</h2>
+
+      {% if error and title == "Neues Konto erstellen" %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+
+      <form action="{{ url_for('register') }}" method="post">
+        <div class="form-group">
+          <label for="reg-username">Username</label>
+          <input
+            id="reg-username"
+            type="text"
+            class="form-control"
+            name="username"
+            placeholder="LuckyPlayer"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Email</label>
+          <input
+            id="reg-email"
+            type="email"
+            class="form-control"
+            name="email"
+            placeholder="you@example.com"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <input
+            id="reg-password"
+            type="password"
+            class="form-control"
+            name="password"
+            placeholder="Create a secure password"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="reg-dob">Date of birth</label>
+          <input
+            id="reg-dob"
+            type="date"
+            class="form-control"
+            name="date_of_birth"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="reg-country">Country</label>
+          <select id="reg-country" name="country" class="form-control" required>
+            <option value="" disabled selected>Select your country</option>
+            <option>Germany</option>
+            <option>Austria</option>
+            <option>Switzerland</option>
+            <option>United Kingdom</option>
+            <option>United States</option>
+            <option>Canada</option>
+            <option>Australia</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <label class="auth-checkbox">
+          <input type="checkbox" name="age_confirm" required>
+          <span>
+            I confirm that I am 18 years or older
+            <span class="age-badge">18+</span>
+          </span>
+        </label>
+
+        <label class="auth-checkbox">
+          <input type="checkbox" name="privacy_confirm" required>
+          <span>I agree to the Privacy Policy</span>
+        </label>
+
+        <button type="submit" class="btn btn-block btn-auth">
+          Create account
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <p class="auth-disclaimer">
+    Play responsibly. If gambling stops being fun, please seek help. We protect your data in
+    accordance with strict privacy standards, and all connections are secured with
+    <strong>SSL encryption</strong>.
+  </p>
 </div>
 {% endblock %}
