@@ -1,54 +1,223 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="margin-top: 30px;">
-  <h2>🎰 Blackjack</h2>
-  
-  <!-- Wallet Balance -->
-  <div class="alert alert-info" style="margin-top: 20px;">
-    <strong>Wallet Balance:</strong> <span id="balance">${{ "%.2f"|format(balance) }}</span>
-  </div>
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  .casino-wrapper {
+    margin: 24px auto 60px;
+    max-width: 1100px;
+    padding: 0 16px;
+  }
+  .casino-topbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
+  .casino-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+  .balance-pill {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-weight: 700;
+    color: #f0c061;
+  }
+  .topbar-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .icon-btn {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #cdd2e2;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .icon-btn:hover,
+  .icon-btn:focus {
+    border-color: #d8a748;
+    color: #f0c061;
+  }
+  .table-area {
+    margin-top: 22px;
+    background: #0b1b14;
+    border: 2px solid #1f3b2c;
+    border-radius: 22px;
+    padding: 22px 18px 26px;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #cfe7d9;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .bet-panel {
+    background: rgba(11, 17, 34, 0.7);
+    border: 1px solid #28314e;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .bet-panel label {
+    font-size: 13px;
+    color: #cdd2e2;
+    font-weight: 600;
+  }
+  .bet-panel .form-control {
+    max-width: 180px;
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #f4f4f6;
+    border-radius: 10px;
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 10px;
+  }
+  .btn-auth:hover,
+  .btn-auth:focus {
+    background: linear-gradient(135deg, #f0c061, #c98e29);
+    color: #111;
+  }
+  .card-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0 6px;
+  }
+  .hand-label {
+    font-size: 14px;
+    color: #cfe7d9;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .card {
+    width: 58px;
+    height: 78px;
+    border-radius: 10px;
+    background: #f7f7fb;
+    color: #121212;
+    border: 2px solid #0b0f1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25);
+  }
+  .card.red { color: #b31313; }
+  .card.hidden {
+    background: linear-gradient(135deg, #1c2a6b, #101738);
+    border-color: #0a0f2c;
+  }
+  .hand-value {
+    color: #f0c061;
+    font-weight: 700;
+  }
+  .status-area {
+    margin-top: 10px;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    background: rgba(15, 22, 43, 0.8);
+    border: 1px solid #28314e;
+  }
+  .action-bar {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-action {
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 700;
+    border: none;
+  }
+  .btn-hit { background: #2d8f5c; color: #fff; }
+  .btn-stand { background: #d8a748; color: #111; }
+  .btn-again { background: #1f4aa8; color: #fff; }
 
-  <!-- Bet Section -->
-  <div id="bet-section" class="panel panel-default" style="margin-top: 20px;">
-    <div class="panel-body">
-      <label for="bet">Bet Amount ($):</label>
-      <input type="number" class="form-control" id="bet" value="10" min="1" step="0.01" style="width: 150px;">
-      <button class="btn btn-primary btn-lg" style="margin-top: 10px;" onclick="startGame()">Play</button>
+  @media (max-width: 768px) {
+    .casino-topbar {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    .topbar-actions { justify-content: center; }
+    .balance-pill { display: inline-block; }
+  }
+</style>
+
+<div class="casino-wrapper">
+  <div class="casino-topbar">
+    <div class="casino-title">Royal Ace Blackjack</div>
+    <div class="balance-pill">Balance: <span id="balance">${{ "%.2f"|format(balance) }}</span></div>
+    <div class="topbar-actions">
+      <button class="icon-btn" type="button">Settings</button>
+      <a class="icon-btn" href="{{ url_for('index') }}">Exit</a>
     </div>
   </div>
 
-  <!-- Game Section (hidden) -->
-  <div id="game-section" style="display: none; margin-top: 30px;">
-    
-    <!-- Dealer -->
-    <div style="background: green; color: white; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-      <h4>Dealer</h4>
-      <div id="dealer-cards" style="display: flex; gap: 15px; font-size: 40px; margin: 15px 0;">
+  <div class="table-area">
+    <div class="table-header">
+      <span>Blackjack table</span>
+      <span>Dealer stands on 17</span>
+    </div>
+
+    <div id="bet-section" class="bet-panel">
+      <label for="bet">Bet Amount ($)</label>
+      <input type="number" class="form-control" id="bet" value="10" min="1" step="0.01">
+      <button class="btn-auth" style="margin-top: 10px;" onclick="startGame()">Deal cards</button>
+    </div>
+
+    <div id="game-section" style="display: none;">
+      <div class="hand-label">Dealer</div>
+      <div id="dealer-cards" class="card-row"></div>
+      <div>Value: <span class="hand-value" id="dealer-value">?</span></div>
+
+      <hr style="border-color:#1f3b2c; margin: 16px 0;">
+
+      <div class="hand-label">Player</div>
+      <div id="player-cards" class="card-row"></div>
+      <div>Value: <span class="hand-value" id="player-value">0</span></div>
+
+      <div id="game-status" class="status-area"></div>
+
+      <div id="action-buttons" class="action-bar">
+        <button class="btn-action btn-hit" onclick="playerHit()">Hit</button>
+        <button class="btn-action btn-stand" onclick="playerStand()">Stand</button>
       </div>
-      <p style="font-size: 18px;">Value: <strong id="dealer-value">?</strong></p>
-    </div>
 
-    <!-- Player -->
-    <div style="background: #f0f0f0; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-      <h4>Player (You)</h4>
-      <div id="player-cards" style="display: flex; gap: 15px; font-size: 40px; margin: 15px 0;">
+      <div id="play-again" style="display: none; margin-top: 16px;">
+        <button class="btn-action btn-again" onclick="location.reload()">Play Again</button>
       </div>
-      <p style="font-size: 18px;">Value: <strong id="player-value">0</strong></p>
-    </div>
-
-    <!-- Status -->
-    <div id="game-status" style="font-size: 18px; font-weight: bold; margin-bottom: 20px;"></div>
-
-    <!-- Action Buttons -->
-    <div id="action-buttons">
-      <button class="btn btn-success btn-lg" onclick="playerHit()" style="margin-right: 10px;">Hit</button>
-      <button class="btn btn-warning btn-lg" onclick="playerStand()">Stand</button>
-    </div>
-
-    <!-- Play Again -->
-    <div id="play-again" style="display: none; margin-top: 20px;">
-      <button class="btn btn-primary btn-lg" onclick="location.reload()">Play Again</button>
     </div>
   </div>
 </div>
@@ -132,9 +301,9 @@ function updateDisplay(data) {
   // Display dealer cards
   const dealerDiv = document.getElementById('dealer-cards');
   dealerDiv.innerHTML = data.dealer_hand.map((card, index) => {
-    if (card === '??') return '<div style="background: blue; width: 60px; height: 80px; border-radius: 5px;"></div>';
+    if (card === '??') return '<div class="card hidden"></div>';
     const isRed = card.includes('♥') || card.includes('♦');
-    return '<div style="background: white; padding: 5px; border: 2px solid black; border-radius: 5px; width: 60px; text-align: center; color: ' + (isRed ? 'red' : 'black') + '; font-weight: bold;">' + card + '</div>';
+    return '<div class="card' + (isRed ? ' red' : '') + '">' + card + '</div>';
   }).join('');
   document.getElementById('dealer-value').textContent = data.dealer_value;
 
@@ -142,7 +311,7 @@ function updateDisplay(data) {
   const playerDiv = document.getElementById('player-cards');
   playerDiv.innerHTML = data.player_hand.map(card => {
     const isRed = card.includes('♥') || card.includes('♦');
-    return '<div style="background: white; padding: 5px; border: 2px solid black; border-radius: 5px; width: 60px; text-align: center; color: ' + (isRed ? 'red' : 'black') + '; font-weight: bold;">' + card + '</div>';
+    return '<div class="card' + (isRed ? ' red' : '') + '">' + card + '</div>';
   }).join('');
   document.getElementById('player-value').textContent = data.player_value;
 
@@ -165,8 +334,8 @@ function updateDisplay(data) {
       resultClass = 'info';
     }
     
-    document.getElementById('game-status').innerHTML = 
-      '<div class="alert alert-' + resultClass + '" style="font-size: 20px; padding: 15px;">' + resultText + '</div>';
+    document.getElementById('game-status').innerHTML =
+      '<div class="status-badge">' + resultText + '</div>';
   }
 }
 </script>
