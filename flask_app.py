@@ -519,20 +519,17 @@ def stats():
         },
     ]
 
-    def _append_event(title_key, title, start, end, challenges):
-        for challenge in challenges:
-            remaining = max(0, int((end - now).total_seconds()))
-            event_challenges.append({
-                "title_key": title_key,
-                "title": title,
-                "desc_key": challenge["desc_key"],
-                "desc": challenge["desc"],
-                "start": start.strftime("%Y-%m-%d %H:%M"),
-                "end": end.strftime("%Y-%m-%d %H:%M"),
-                "remaining": remaining,
-                "target": challenge["target"],
-                "value": challenge["value"],
-            })
+    def _append_event(title_key, title, start, end, challenges, theme):
+        remaining = max(0, int((end - now).total_seconds()))
+        event_challenges.append({
+            "title_key": title_key,
+            "title": title,
+            "theme": theme,
+            "start": start.strftime("%Y-%m-%d %H:%M"),
+            "end": end.strftime("%Y-%m-%d %H:%M"),
+            "remaining": remaining,
+            "challenges": challenges,
+        })
 
     _append_event(
         "stats.event.halloween.title",
@@ -540,6 +537,7 @@ def stats():
         halloween_start,
         halloween_end,
         halloween_challenges,
+        "halloween",
     )
     _append_event(
         "stats.event.winter.title",
@@ -547,6 +545,7 @@ def stats():
         winter_start,
         winter_end,
         winter_challenges,
+        "winter",
     )
     _append_event(
         "stats.event.newyear.title",
@@ -554,6 +553,7 @@ def stats():
         new_year_start,
         new_year_end,
         new_year_challenges,
+        "newyear",
     )
 
     # Personal bests
