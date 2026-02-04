@@ -139,6 +139,41 @@ def blackjack():
     return render_template("blackjack.html", balance=balance)
 
 
+@app.route("/deposit", methods=["GET", "POST"])
+@login_required
+def deposit():
+    error = None
+    success = None
+
+    wallet = db_read("SELECT balance FROM wallets WHERE user_id=%s", (current_user.id,), single=True)
+    if not wallet:
+        db_write("INSERT INTO wallets (user_id, balance) VALUES (%s, 0.00)", (current_user.id,))
+        balance = 0.00
+    else:
+        balance = float(wallet["balance"])
+
+    if request.method == "POST":
+        amount_raw = request.form.get("amount", "0")
+        try:
+            amount = float(amount_raw)
+        except ValueError:
+            amount = 0
+
+        if amount <= 0:
+            error = "Please enter a valid amount."
+        else:
+            new_balance = balance + amount
+            db_write("UPDATE wallets SET balance=%s WHERE user_id=%s", (new_balance, current_user.id))
+            db_write(
+                "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+                (current_user.id, amount, "deposit", "Demo top-up")
+            )
+            balance = new_balance
+            success = "Funds added successfully (demo)."
+
+    return render_template("deposit.html", balance=balance, error=error, success=success)
+
+
 @app.route("/settings", methods=["GET"])
 @login_required
 def settings():

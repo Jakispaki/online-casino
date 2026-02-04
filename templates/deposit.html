@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  .deposit-wrapper {
+    max-width: 640px;
+    margin: 28px auto 60px;
+    padding: 0 16px;
+  }
+  .deposit-card {
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+  .deposit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .deposit-header h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .balance-pill {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-weight: 700;
+    color: #f0c061;
+  }
+  .form-group label {
+    color: #d6d9e2;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .form-control {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #f4f4f6;
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: none;
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 10px;
+  }
+  .btn-auth:hover,
+  .btn-auth:focus {
+    background: linear-gradient(135deg, #f0c061, #c98e29);
+    color: #111;
+  }
+  .notice {
+    font-size: 12px;
+    color: #9aa2ba;
+    margin-top: 12px;
+  }
+  .notice strong { color: #e7c27b; }
+  .alert-success,
+  .alert-danger {
+    border-radius: 10px;
+  }
+</style>
+
+<div class="deposit-wrapper">
+  <div class="deposit-card">
+    <div class="deposit-header">
+      <h1>Add funds</h1>
+      <div class="balance-pill">Balance: ${{ "%.2f"|format(balance) }}</div>
+    </div>
+
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+      <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+
+    <form action="{{ url_for('deposit') }}" method="post">
+      <div class="form-group">
+        <label for="card-name">Cardholder name</label>
+        <input id="card-name" class="form-control" name="card_name" placeholder="Alex Player" required>
+      </div>
+      <div class="form-group">
+        <label for="card-number">Card number</label>
+        <input id="card-number" class="form-control" name="card_number" inputmode="numeric" placeholder="1234 5678 9012 3456" required>
+      </div>
+      <div class="form-group">
+        <label for="card-exp">Expiry date</label>
+        <input id="card-exp" class="form-control" name="card_exp" placeholder="MM/YY" required>
+      </div>
+      <div class="form-group">
+        <label for="card-cvv">CVV</label>
+        <input id="card-cvv" class="form-control" name="card_cvv" inputmode="numeric" placeholder="123" required>
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount ($)</label>
+        <input id="amount" type="number" class="form-control" name="amount" min="1" step="0.01" placeholder="50.00" required>
+      </div>
+
+      <button class="btn-auth" type="submit">Add funds</button>
+    </form>
+
+    <p class="notice">
+      <strong>Demo only:</strong> This page collects <strong>fake credit card information</strong> for testing.
+      No real payments are processed.
+    </p>
+  </div>
+</div>
+{% endblock %}
