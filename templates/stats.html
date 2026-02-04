@@ -243,26 +243,51 @@
     <a class="btn-ghost" data-i18n="ui.backTable" href="{{ url_for('blackjack') }}">Back to table</a>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="label" data-i18n="stats.total">Total games</div>
-      <div class="value">{{ total_games }}</div>
+  <div class="stats-section">
+    <h2 data-i18n="stats.blackjackStats">Blackjack stats</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.total">Total games</div>
+        <div class="value">{{ bj_total }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.wins">Wins</div>
+        <div class="value">{{ bj_wins }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.losses">Losses</div>
+        <div class="value">{{ bj_losses }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.pushes">Pushes</div>
+        <div class="value">{{ bj_pushes }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.winrate">Win rate</div>
+        <div class="value">{{ bj_win_rate }}%</div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="label" data-i18n="stats.wins">Wins</div>
-      <div class="value">{{ wins }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label" data-i18n="stats.losses">Losses</div>
-      <div class="value">{{ losses }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label" data-i18n="stats.pushes">Pushes</div>
-      <div class="value">{{ pushes }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label" data-i18n="stats.winrate">Win rate</div>
-      <div class="value">{{ win_rate }}%</div>
+  </div>
+
+  <div class="stats-section">
+    <h2 data-i18n="stats.rouletteStats">Roulette stats</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.total">Total games</div>
+        <div class="value">{{ ru_total }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.wins">Wins</div>
+        <div class="value">{{ ru_wins }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.losses">Losses</div>
+        <div class="value">{{ ru_losses }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="stats.winrate">Win rate</div>
+        <div class="value">{{ ru_win_rate }}%</div>
+      </div>
     </div>
   </div>
 

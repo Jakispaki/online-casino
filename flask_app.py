@@ -250,10 +250,21 @@ def stats():
         (current_user.id,),
     )
 
-    total_games = len(bj_sessions) + len(roulette_sessions)
-    wins = sum(1 for s in bj_sessions if s.get("result") == "player_win") + sum(1 for s in roulette_sessions if s.get("win"))
-    losses = sum(1 for s in bj_sessions if s.get("result") in ("dealer_win", "player_bust")) + sum(1 for s in roulette_sessions if not s.get("win"))
-    pushes = sum(1 for s in bj_sessions if s.get("result") == "push")
+    bj_total = len(bj_sessions)
+    bj_wins = sum(1 for s in bj_sessions if s.get("result") == "player_win")
+    bj_losses = sum(1 for s in bj_sessions if s.get("result") in ("dealer_win", "player_bust"))
+    bj_pushes = sum(1 for s in bj_sessions if s.get("result") == "push")
+    bj_win_rate = round((bj_wins / bj_total) * 100, 1) if bj_total else 0
+
+    ru_total = len(roulette_sessions)
+    ru_wins = sum(1 for s in roulette_sessions if s.get("win"))
+    ru_losses = ru_total - ru_wins
+    ru_win_rate = round((ru_wins / ru_total) * 100, 1) if ru_total else 0
+
+    total_games = bj_total + ru_total
+    wins = bj_wins + ru_wins
+    losses = bj_losses + ru_losses
+    pushes = bj_pushes
     win_rate = round((wins / total_games) * 100, 1) if total_games else 0
 
     # Achievements
@@ -598,6 +609,15 @@ def stats():
         losses=losses,
         pushes=pushes,
         win_rate=win_rate,
+        bj_total=bj_total,
+        bj_wins=bj_wins,
+        bj_losses=bj_losses,
+        bj_pushes=bj_pushes,
+        bj_win_rate=bj_win_rate,
+        ru_total=ru_total,
+        ru_wins=ru_wins,
+        ru_losses=ru_losses,
+        ru_win_rate=ru_win_rate,
         achievements=achievements,
         chart_points=chart_points,
         xp=xp,
