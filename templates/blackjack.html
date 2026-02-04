@@ -59,6 +59,10 @@
     border-color: #d8a748;
     color: #f0c061;
   }
+  .tutorial-btn {
+    border-color: rgba(240, 192, 97, 0.6);
+    color: #f0c061;
+  }
   .table-area {
     margin-top: 22px;
     background: var(--felt-color);
@@ -234,6 +238,7 @@
       <a class="icon-btn" data-i18n="ui.settings" href="{{ url_for('settings') }}">Settings</a>
       <a class="icon-btn" data-i18n="ui.addFunds" href="{{ url_for('deposit') }}">Add funds</a>
       <a class="icon-btn" data-i18n="ui.roulette" href="{{ url_for('roulette') }}">Roulette</a>
+      <button class="icon-btn tutorial-btn" id="tutorial-btn" type="button">Tutorial</button>
     </div>
   </div>
 
@@ -455,6 +460,7 @@ function updateDisplay(data) {
 
   const overlay = document.getElementById('tutorial-overlay');
   const SHOW_TUTORIAL = overlay.dataset.show === 'true';
+  const tutorialBtn = document.getElementById('tutorial-btn');
   const text = document.getElementById('tutorial-text');
   const nextBtn = document.getElementById('tutorial-next');
   const skipBtn = document.getElementById('tutorial-skip');
@@ -483,8 +489,8 @@ function updateDisplay(data) {
     });
   }
 
-  if (SHOW_TUTORIAL) {
-    showTutorial();
+  if (tutorialBtn) {
+    tutorialBtn.addEventListener('click', showTutorial);
   }
 
   nextBtn.addEventListener('click', () => {

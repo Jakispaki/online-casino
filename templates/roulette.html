@@ -53,6 +53,10 @@
     border-radius: 10px;
     font-weight: 600;
   }
+  .tutorial-btn {
+    border-color: rgba(240, 192, 97, 0.6);
+    color: #f0c061;
+  }
   .table-area {
     margin-top: 22px;
     background: var(--felt-color);
@@ -383,6 +387,7 @@
     <div class="topbar-actions">
       <a class="icon-btn" data-i18n="ui.settings" href="{{ url_for('settings') }}">Settings</a>
       <a class="icon-btn" data-i18n="ui.help" href="{{ url_for('help_page') }}">Help</a>
+      <button class="icon-btn tutorial-btn" id="tutorial-btn" type="button">Tutorial</button>
     </div>
   </div>
 
@@ -463,6 +468,19 @@
           <p style="margin:0; font-size:13px; color:#cdd2e2;">Highest balance: ${{ "%.2f"|format(best_balance) }}</p>
           <p style="margin:0; font-size:13px; color:#cdd2e2;">Longest win streak: {{ max_streak }}</p>
           <p style="margin:0; font-size:13px; color:#cdd2e2;">Most wins: {{ most_wins }}</p>
+        </div>
+
+        <div class="side-panel">
+          <h4>Bet guide</h4>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">1st 12: numbers 1-12</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">2nd 12: numbers 13-24</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">3rd 12: numbers 25-36</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">Column 1: 1,4,7,...,34</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">Column 2: 2,5,8,...,35</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">Column 3: 3,6,9,...,36</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">1-18 / 19-36: low or high</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">Odd / Even: parity</p>
+          <p style="margin:0; font-size:13px; color:#cdd2e2;">Red / Black: color</p>
         </div>
       </div>
     </div>
@@ -692,6 +710,7 @@
   const title = document.getElementById('tutorial-title');
   const disableBox = document.getElementById('tutorial-disable');
   const disableLabel = document.getElementById('tutorial-disable-label');
+  const tutorialBtn = document.getElementById('tutorial-btn');
 
   function showTutorial() {
     const t = window.getTranslation || ((key, fallback) => fallback || key);
@@ -714,8 +733,8 @@
     });
   }
 
-  if (SHOW_TUTORIAL) {
-    showTutorial();
+  if (tutorialBtn) {
+    tutorialBtn.addEventListener('click', showTutorial);
   }
 
   nextBtn.addEventListener('click', () => {
