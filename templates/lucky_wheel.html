@@ -180,10 +180,19 @@
   <div class="reward-box" id="reward-box" data-i18n="wheel.rewardPrompt">Spin the wheel to reveal your reward.</div>
 </div>
 
+<script type="application/json" id="wheel-data">
+  {{ {
+    'segments': segments,
+    'freeAvailable': free_available,
+    'nextFreeSeconds': next_free_seconds
+  } | tojson }}
+</script>
+
 <script>
-  const segments = {{ segments|tojson }};
-  let freeAvailable = {{ 'true' if free_available else 'false' }};
-  let nextFreeSeconds = {{ next_free_seconds }};
+  const wheelData = JSON.parse(document.getElementById('wheel-data').textContent || '{}');
+  const segments = Array.isArray(wheelData.segments) ? wheelData.segments : [];
+  let freeAvailable = Boolean(wheelData.freeAvailable);
+  let nextFreeSeconds = Number(wheelData.nextFreeSeconds) || 0;
   let currentRotation = 0;
   let spinning = false;
 
