@@ -265,7 +265,7 @@
     {% for c in challenges %}
       {% set progress = (c.value / c.target * 100) if c.target > 0 else 0 %}
       <div class="challenge-item">
-        <span>{{ c.title }}</span>
+        <span data-i18n="{{ c.title_key }}">{{ c.title }}</span>
         <span>{{ c.value }}/{{ c.target }}</span>
       </div>
       <div class="challenge-bar">
@@ -279,8 +279,8 @@
     {% for e in event_challenges %}
       {% set progress = (e.value / e.target * 100) if e.target > 0 else 0 %}
       <div class="event-card" data-remaining="{{ e.remaining }}">
-        <h4>{{ e.title }}</h4>
-        <p class="event-meta">{{ e.desc }}</p>
+        <h4 data-i18n="{{ e.title_key }}">{{ e.title }}</h4>
+        <p class="event-meta" data-i18n="{{ e.desc_key }}">{{ e.desc }}</p>
         <p class="event-meta"><span data-i18n="stats.start">Start</span>: {{ e.start }} | <span data-i18n="stats.end">End</span>: {{ e.end }}</p>
         <p class="event-meta"><span data-i18n="stats.timeLeft">Time left</span>: <span class="countdown"></span></p>
         <div class="challenge-item">
@@ -338,8 +338,8 @@
     <div class="achievements">
       {% for achievement in achievements %}
         <div class="achievement {% if achievement.unlocked %}unlocked{% endif %}">
-          <h3>{{ achievement.title }}</h3>
-          <p>{{ achievement.desc }}</p>
+          <h3 data-i18n="{{ achievement.title_key }}">{{ achievement.title }}</h3>
+          <p data-i18n="{{ achievement.desc_key }}">{{ achievement.desc }}</p>
           <div class="badge {% if achievement.unlocked %}unlocked{% endif %}">
             {% if achievement.unlocked %}
               <span data-i18n="stats.unlocked">Unlocked</span>
@@ -394,7 +394,11 @@
     const d = Math.floor(s / 86400);
     const h = Math.floor((s % 86400) / 3600);
     const m = Math.floor((s % 3600) / 60);
-    return `${d}d ${h}h ${m}m`;
+    const t = window.getTranslation || ((key, fallback) => fallback || key);
+    const day = t('stats.daysShort', 'd');
+    const hour = t('stats.hoursShort', 'h');
+    const minute = t('stats.minutesShort', 'm');
+    return `${d}${day} ${h}${hour} ${m}${minute}`;
   }
 
   document.querySelectorAll('.event-card').forEach((card) => {

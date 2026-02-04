@@ -295,11 +295,41 @@ def stats():
                 pass
 
     achievements = [
-        {"title": "First Win", "unlocked": first_win, "desc": "Win your first hand."},
-        {"title": "First Blackjack", "unlocked": first_blackjack, "desc": "Hit 21 with your first two cards."},
-        {"title": "3 Win Streak", "unlocked": max_streak >= 3, "desc": "Win three hands in a row."},
-        {"title": "5 Win Streak", "unlocked": max_streak >= 5, "desc": "Win five hands in a row."},
-        {"title": "10 Games Played", "unlocked": total_games >= 10, "desc": "Play ten hands."},
+        {
+            "title_key": "stats.achievement.firstWin.title",
+            "title": "First Win",
+            "unlocked": first_win,
+            "desc_key": "stats.achievement.firstWin.desc",
+            "desc": "Win your first hand.",
+        },
+        {
+            "title_key": "stats.achievement.firstBlackjack.title",
+            "title": "First Blackjack",
+            "unlocked": first_blackjack,
+            "desc_key": "stats.achievement.firstBlackjack.desc",
+            "desc": "Hit 21 with your first two cards.",
+        },
+        {
+            "title_key": "stats.achievement.winStreak3.title",
+            "title": "3 Win Streak",
+            "unlocked": max_streak >= 3,
+            "desc_key": "stats.achievement.winStreak3.desc",
+            "desc": "Win three hands in a row.",
+        },
+        {
+            "title_key": "stats.achievement.winStreak5.title",
+            "title": "5 Win Streak",
+            "unlocked": max_streak >= 5,
+            "desc_key": "stats.achievement.winStreak5.desc",
+            "desc": "Win five hands in a row.",
+        },
+        {
+            "title_key": "stats.achievement.games10.title",
+            "title": "10 Games Played",
+            "unlocked": total_games >= 10,
+            "desc_key": "stats.achievement.games10.desc",
+            "desc": "Play ten hands.",
+        },
     ]
 
     # Chart data (last 10 sessions)
@@ -333,16 +363,33 @@ def stats():
     daily_wins = sum(1 for s in daily_bj if s.get("result") == "player_win") + sum(1 for s in daily_roulette if s.get("win"))
 
     challenges = [
-        {"title": "Play 5 rounds", "target": 5, "value": daily_games},
-        {"title": "Win 2 rounds", "target": 2, "value": daily_wins},
-        {"title": "Play 10 rounds", "target": 10, "value": daily_games},
+        {
+            "title_key": "stats.challenge.play5",
+            "title": "Play 5 rounds",
+            "target": 5,
+            "value": daily_games,
+        },
+        {
+            "title_key": "stats.challenge.win2",
+            "title": "Win 2 rounds",
+            "target": 2,
+            "value": daily_wins,
+        },
+        {
+            "title_key": "stats.challenge.play10",
+            "title": "Play 10 rounds",
+            "target": 10,
+            "value": daily_games,
+        },
     ]
 
     # Event challenges (time-limited)
     now = datetime.utcnow()
     events = [
         {
+            "title_key": "stats.event.weekendHighStakes.title",
             "title": "Weekend High Stakes",
+            "desc_key": "stats.event.weekendHighStakes.desc",
             "desc": "Play 10 rounds during the event.",
             "start": now - timedelta(hours=12),
             "end": now + timedelta(hours=36),
@@ -350,7 +397,9 @@ def stats():
             "value": daily_games,
         },
         {
+            "title_key": "stats.event.sharpshooter.title",
             "title": "Sharpshooter",
+            "desc_key": "stats.event.sharpshooter.desc",
             "desc": "Win 3 rounds before the event ends.",
             "start": now - timedelta(hours=6),
             "end": now + timedelta(hours=18),
@@ -363,7 +412,9 @@ def stats():
     for e in events:
         remaining = max(0, int((e["end"] - now).total_seconds()))
         event_challenges.append({
+            "title_key": e["title_key"],
             "title": e["title"],
+            "desc_key": e["desc_key"],
             "desc": e["desc"],
             "start": e["start"].strftime("%Y-%m-%d %H:%M"),
             "end": e["end"].strftime("%Y-%m-%d %H:%M"),
