@@ -1,4 +1,5 @@
 from flask import Flask, redirect, render_template, request, url_for, jsonify
+from datetime import datetime, date
 from dotenv import load_dotenv
 import os
 import git
@@ -66,14 +67,8 @@ def login():
         error = "Benutzername oder Passwort ist falsch."
 
     return render_template(
-        "auth.html",
-        title="In dein Konto einloggen",
-        action=url_for("login"),
-        button_label="Einloggen",
-        error=error,
-        footer_text="Noch kein Konto?",
-        footer_link_url=url_for("register"),
-        footer_link_label="Registrieren"
+        "login.html",
+        error=error
     )
 
 
@@ -82,24 +77,34 @@ def register():
     error = None
 
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        dob_str = request.form.get("date_of_birth", "")
+        age_confirm = request.form.get("age_confirm")
+        privacy_confirm = request.form.get("privacy_confirm")
 
-        ok = register_user(username, password)
-        if ok:
-            return redirect(url_for("login"))
+        if not age_confirm or not privacy_confirm:
+            error = "Please confirm the 18+ notice and Privacy Policy."
+        else:
+            try:
+                dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+                today = date.today()
+                age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                if age < 18:
+                    error = "You must be 18 or older to register."
+            except ValueError:
+                error = "Please enter a valid date of birth."
 
-        error = "Benutzername existiert bereits."
+        if error is None:
+            ok = register_user(username, password)
+            if ok:
+                return redirect(url_for("login"))
+
+            error = "Username already exists."
 
     return render_template(
-        "auth.html",
-        title="Neues Konto erstellen",
-        action=url_for("register"),
-        button_label="Registrieren",
-        error=error,
-        footer_text="Du hast bereits ein Konto?",
-        footer_link_url=url_for("login"),
-        footer_link_label="Einloggen"
+        "register.html",
+        error=error
     )
 
 @app.route("/logout")

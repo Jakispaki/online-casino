@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  .auth-wrapper {
+    max-width: 560px;
+    margin: 40px auto 60px;
+    padding: 0 16px;
+  }
+  .auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .auth-header h1 {
+    font-size: 28px;
+    margin: 0 0 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .auth-header p {
+    margin: 0;
+    color: #b9bfd1;
+  }
+  .auth-card {
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    padding: 24px 22px 22px;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+  .auth-card h2 {
+    font-size: 20px;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  .form-group label {
+    color: #d6d9e2;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .form-control {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #f4f4f6;
+    border-radius: 10px;
+    padding: 11px 12px;
+    box-shadow: none;
+  }
+  .form-control:focus {
+    border-color: #d8a748;
+    box-shadow: 0 0 0 2px rgba(216, 167, 72, 0.2);
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 700;
+    padding: 11px 14px;
+    border-radius: 10px;
+  }
+  .btn-auth:hover,
+  .btn-auth:focus {
+    background: linear-gradient(135deg, #f0c061, #c98e29);
+    color: #111;
+  }
+  .auth-link {
+    color: #f0c061;
+    font-weight: 600;
+  }
+  .auth-link:hover,
+  .auth-link:focus {
+    color: #ffd88b;
+    text-decoration: none;
+  }
+  .auth-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #c8ccda;
+  }
+  .auth-checkbox input {
+    margin-top: 3px;
+    accent-color: #d8a748;
+  }
+  .age-badge {
+    display: inline-block;
+    background: #7a1111;
+    color: #fff2f2;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    letter-spacing: 0.4px;
+  }
+  .error { color: #ff6b6b; margin-bottom: 12px; }
+  .auth-footer {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #b9bfd1;
+  }
+  .auth-disclaimer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #9aa2ba;
+    text-align: center;
+  }
+  .auth-disclaimer strong { color: #e7c27b; }
+</style>
+
+<div class="auth-wrapper">
+  <div class="auth-header">
+    <h1>Create your Royal Ace account</h1>
+    <p>Fast registration with a strong 18+ check.</p>
+  </div>
+
+  <div class="auth-card">
+    <h2>Register</h2>
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form action="{{ url_for('register') }}" method="post">
+      <div class="form-group">
+        <label for="reg-username">Username</label>
+        <input
+          id="reg-username"
+          type="text"
+          class="form-control"
+          name="username"
+          placeholder="LuckyPlayer"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="reg-email">Email</label>
+        <input
+          id="reg-email"
+          type="email"
+          class="form-control"
+          name="email"
+          placeholder="you@example.com"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="reg-password">Password</label>
+        <input
+          id="reg-password"
+          type="password"
+          class="form-control"
+          name="password"
+          placeholder="Create a secure password"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="reg-dob">Date of birth</label>
+        <input
+          id="reg-dob"
+          type="date"
+          class="form-control"
+          name="date_of_birth"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="reg-country">Country</label>
+        <select id="reg-country" name="country" class="form-control" required>
+          <option value="" disabled selected>Select your country</option>
+          <option>Germany</option>
+          <option>Austria</option>
+          <option>Switzerland</option>
+          <option>United Kingdom</option>
+          <option>United States</option>
+          <option>Canada</option>
+          <option>Australia</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <label class="auth-checkbox">
+        <input type="checkbox" name="age_confirm" required>
+        <span>
+          I confirm that I am 18 years or older
+          <span class="age-badge">18+</span>
+        </span>
+      </label>
+
+      <label class="auth-checkbox">
+        <input type="checkbox" name="privacy_confirm" required>
+        <span>I agree to the Privacy Policy</span>
+      </label>
+
+      <label class="auth-checkbox">
+        <input type="checkbox" name="ads_opt_in">
+        <span>Yes, you may send me casino offers and promotions</span>
+      </label>
+
+      <button type="submit" class="btn btn-block btn-auth">Create account</button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a class="auth-link" href="{{ url_for('login') }}">Sign in</a>
+    </div>
+  </div>
+
+  <p class="auth-disclaimer">
+    Play responsibly. If gambling stops being fun, please seek help. We protect your data in
+    accordance with strict privacy standards, and all connections are secured with
+    <strong>SSL encryption</strong>.
+  </p>
+</div>
+{% endblock %}

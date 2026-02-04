@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    background: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    color: #e8e8e8;
+  }
+  .auth-wrapper {
+    max-width: 520px;
+    margin: 40px auto 60px;
+    padding: 0 16px;
+  }
+  .auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .auth-header h1 {
+    font-size: 28px;
+    margin: 0 0 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .auth-header p {
+    margin: 0;
+    color: #b9bfd1;
+  }
+  .auth-card {
+    background: #0f162b;
+    border: 1px solid rgba(255, 215, 130, 0.18);
+    padding: 24px 22px 22px;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+  .auth-card h2 {
+    font-size: 20px;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  .form-group label {
+    color: #d6d9e2;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .form-control {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: #f4f4f6;
+    border-radius: 10px;
+    padding: 11px 12px;
+    box-shadow: none;
+  }
+  .form-control:focus {
+    border-color: #d8a748;
+    box-shadow: 0 0 0 2px rgba(216, 167, 72, 0.2);
+  }
+  .btn-auth {
+    background: linear-gradient(135deg, #d8a748, #b9801f);
+    border: none;
+    color: #111;
+    font-weight: 700;
+    padding: 11px 14px;
+    border-radius: 10px;
+  }
+  .btn-auth:hover,
+  .btn-auth:focus {
+    background: linear-gradient(135deg, #f0c061, #c98e29);
+    color: #111;
+  }
+  .auth-link {
+    color: #f0c061;
+    font-weight: 600;
+  }
+  .auth-link:hover,
+  .auth-link:focus {
+    color: #ffd88b;
+    text-decoration: none;
+  }
+  .auth-help {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-top: 4px;
+    color: #b9bfd1;
+  }
+  .error { color: #ff6b6b; margin-bottom: 12px; }
+  .auth-footer {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #b9bfd1;
+  }
+  .auth-disclaimer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #9aa2ba;
+    text-align: center;
+  }
+  .auth-disclaimer strong { color: #e7c27b; }
+</style>
+
+<div class="auth-wrapper">
+  <div class="auth-header">
+    <h1>Welcome to Royal Ace Casino</h1>
+    <p>Secure login with encrypted connection.</p>
+  </div>
+
+  <div class="auth-card">
+    <h2>Login</h2>
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form action="{{ url_for('login') }}" method="post">
+      <div class="form-group">
+        <label for="login-username">Email or username</label>
+        <input
+          id="login-username"
+          type="text"
+          class="form-control"
+          name="username"
+          placeholder="you@example.com"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input
+          id="login-password"
+          type="password"
+          class="form-control"
+          name="password"
+          placeholder="••••••••"
+          required
+        >
+        <div class="auth-help">
+          <span>Need help?</span>
+          <a class="auth-link" href="#">Forgot password</a>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-block btn-auth">Sign in</button>
+    </form>
+
+    <div class="auth-footer">
+      New here? <a class="auth-link" href="{{ url_for('register') }}">Create an account</a>
+    </div>
+  </div>
+
+  <p class="auth-disclaimer">
+    Play responsibly. If gambling stops being fun, please seek help. We protect your data in
+    accordance with strict privacy standards, and all connections are secured with
+    <strong>SSL encryption</strong>.
+  </p>
+</div>
+{% endblock %}
