@@ -411,6 +411,25 @@ function playerStand() {
 }
 
 function updateDisplay(data) {
+  function cardValue(card) {
+    const rank = card.slice(0, -1);
+    if (rank === 'A') return 1;
+    if (['K', 'Q', 'J'].includes(rank)) return 10;
+    return parseInt(rank, 10) || 0;
+  }
+
+  function handTotals(hand) {
+    let total = 0;
+    let aces = 0;
+    hand.forEach((card) => {
+      if (card === '??') return;
+      if (card.startsWith('A')) aces += 1;
+      total += cardValue(card);
+    });
+    const soft = aces > 0 && total + 10 <= 21 ? total + 10 : total;
+    return { hard: total, soft };
+  }
+
   // Display dealer cards
   const dealerDiv = document.getElementById('dealer-cards');
   dealerDiv.innerHTML = data.dealer_hand.map((card, index) => {
@@ -426,7 +445,9 @@ function updateDisplay(data) {
     const isRed = card.includes('♥') || card.includes('♦');
     return '<div class="card' + (isRed ? ' red' : '') + '">' + card + '</div>';
   }).join('');
-  document.getElementById('player-value').textContent = data.player_value;
+  const totals = handTotals(data.player_hand || []);
+  const valueText = totals.soft !== totals.hard ? `${totals.hard}/${totals.soft}` : `${totals.hard}`;
+  document.getElementById('player-value').textContent = valueText;
 
   // Display result if finished
   if (data.finished) {

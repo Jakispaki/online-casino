@@ -8,7 +8,7 @@ import hashlib
 import json
 from db import db_read, db_write
 from auth import login_manager, authenticate, register_user
-from blackjack_engine import BlackjackGame, hand_value
+from blackjack_engine import BlackjackGame, hand_value, create_deck
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
 from flask_login import login_user, logout_user, login_required, current_user
@@ -1138,6 +1138,10 @@ def blackjack_hit():
     game = BlackjackGame()
     game.player_hand = json.loads(session["player_hand"])
     game.dealer_hand = json.loads(session["dealer_hand"])
+    used_cards = set(game.player_hand + game.dealer_hand)
+    remaining = [card for card in create_deck() if card not in used_cards]
+    random.shuffle(remaining)
+    game.deck = remaining
     game.finished = session["finished"]
     game.result = session["result"]
     
@@ -1173,6 +1177,10 @@ def blackjack_stand():
     game = BlackjackGame()
     game.player_hand = json.loads(session["player_hand"])
     game.dealer_hand = json.loads(session["dealer_hand"])
+    used_cards = set(game.player_hand + game.dealer_hand)
+    remaining = [card for card in create_deck() if card not in used_cards]
+    random.shuffle(remaining)
+    game.deck = remaining
     game.finished = session["finished"]
     game.result = session["result"]
     
