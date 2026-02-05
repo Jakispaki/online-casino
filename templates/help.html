@@ -32,66 +32,192 @@
     font-size: 14px;
     line-height: 1.6;
   }
-  .help-card ul {
-    padding-left: 18px;
-  }
   .highlight {
     color: #f0c061;
     font-weight: 700;
+  }
+  .panel-group {
+    margin-bottom: 0;
+  }
+  .panel {
+    background: #0b1122;
+    border: 1px solid #28314e;
+    border-radius: 12px;
+    box-shadow: none;
+  }
+  .panel + .panel {
+    margin-top: 10px;
+  }
+  .panel-heading {
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+  }
+  .panel-title a {
+    display: block;
+    color: #f0c061;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .panel-body {
+    border-top: 1px solid #1f2a49;
+    padding: 14px 16px;
+  }
+  .faq-item {
+    margin-bottom: 10px;
+  }
+  .faq-item:last-child {
+    margin-bottom: 0;
+  }
+  .tip-box {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(240, 192, 97, 0.4);
+    background: rgba(240, 192, 97, 0.08);
+    color: #e7c27b;
+    font-weight: 600;
   }
 </style>
 
 <div class="help-wrapper">
   <div class="help-card">
     <h1 data-i18n="help.title">Help & FAQ</h1>
-    <p data-i18n="help.subtitle">Everything you need to know to play Blackjack safely and confidently.</p>
-  </div>
-
-  <div class="help-card">
-    <h2 data-i18n="help.blackjack">Blackjack basics</h2>
-    <ul>
-      <li data-i18n-html="help.blackjackGoal">Goal: get as close to <span class="highlight">21</span> as possible without going over.</li>
-      <li data-i18n-html="help.blackjackCards">Number cards count as their value. Face cards count as 10. Aces count as 1 or 11.</li>
-      <li data-i18n-html="help.blackjackDealer">The dealer draws until they reach 17 or higher.</li>
-      <li data-i18n-html="help.blackjackBust">If you go over 21, you bust and lose the hand.</li>
-    </ul>
-  </div>
-
-  <div class="help-card">
-    <h2 data-i18n="help.controls">Controls</h2>
-    <ul>
-      <li data-i18n-html="help.controlDeal"><span class="highlight">Deal cards</span>: start a new hand with your bet.</li>
-      <li data-i18n-html="help.controlHit"><span class="highlight">Hit</span>: take another card.</li>
-      <li data-i18n-html="help.controlStand"><span class="highlight">Stand</span>: end your turn and let the dealer play.</li>
-      <li data-i18n-html="help.controlRoulette"><span class="highlight">Roulette</span>: choose a bet type and spin the wheel.</li>
-      <li data-i18n-html="help.controlSettings"><span class="highlight">Settings</span>: adjust table theme and card size.</li>
-      <li data-i18n-html="help.controlDeposit"><span class="highlight">Add funds</span>: demo top-up for your wallet.</li>
-    </ul>
-  </div>
-
-  <div class="help-card">
-    <h2 data-i18n="help.roulette">Roulette basics</h2>
-    <ul>
-      <li data-i18n-html="help.rouletteBet">Bet on <span class="highlight">color</span> (red/black), <span class="highlight">parity</span> (odd/even), or a single number.</li>
-      <li data-i18n-html="help.roulettePayout">Number bets pay 35:1. Color and parity pay 1:1.</li>
-      <li data-i18n-html="help.rouletteZero">Zero is green and loses against color/parity bets.</li>
-    </ul>
+    <p data-i18n="help.intro">Welcome to the help area. Find answers about games, rules, XP, rewards, and features.</p>
   </div>
 
   <div class="help-card" id="help-account">
-    <h2 data-i18n="help.questions">Common questions</h2>
-    <ul>
-      <li data-i18n-html="help.qHidden"><strong>Why is my card hidden?</strong> The dealer keeps one card face down until the hand ends.</li>
-      <li data-i18n-html="help.qPush"><strong>What is a push?</strong> A tie. Your bet is returned.</li>
-      <li data-i18n-html="help.qDeposits"><strong>Are deposits real?</strong> No. The deposit page is a demo and uses fake card details.</li>
-      <li data-i18n-html="help.qStats"><strong>Where are my stats?</strong> Open the Statistics page from the navigation bar.</li>
-      <li data-i18n-html="help.qForgot"><strong>Forgot password?</strong> Contact support and we will reset it for you.</li>
-    </ul>
-  </div>
+    <div class="panel-group" id="faq-accordion">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-general" data-i18n="help.section.general">General questions</a>
+          </h3>
+        </div>
+        <div id="faq-general" class="panel-collapse collapse in">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.general.site"></div>
+            <div class="faq-item" data-i18n-html="help.general.real"></div>
+            <div class="faq-item" data-i18n-html="help.general.age"></div>
+          </div>
+        </div>
+      </div>
 
-  <div class="help-card">
-    <h2 data-i18n="help.responsible">Responsible gaming</h2>
-    <p data-i18n="help.responsibleText">Play for fun. Set limits and take breaks. If gambling stops being enjoyable, please seek help.</p>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-blackjack" data-i18n="help.section.blackjack">Blackjack rules</a>
+          </h3>
+        </div>
+        <div id="faq-blackjack" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.blackjack.how"></div>
+            <div class="faq-item" data-i18n-html="help.blackjack.actions"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-roulette" data-i18n="help.section.roulette">Roulette</a>
+          </h3>
+        </div>
+        <div id="faq-roulette" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.roulette.how"></div>
+            <div class="faq-item" data-i18n-html="help.roulette.bets"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-wheel" data-i18n="help.section.wheel">Spin Wheel</a>
+          </h3>
+        </div>
+        <div id="faq-wheel" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.wheel.how"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-xp" data-i18n="help.section.xp">XP, levels, rewards</a>
+          </h3>
+        </div>
+        <div id="faq-xp" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.xp.what"></div>
+            <div class="faq-item" data-i18n-html="help.xp.levels"></div>
+            <div class="faq-item" data-i18n-html="help.xp.ranks"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-challenges" data-i18n="help.section.challenges">Challenges & events</a>
+          </h3>
+        </div>
+        <div id="faq-challenges" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.challenges.daily"></div>
+            <div class="faq-item" data-i18n-html="help.challenges.events"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-stats" data-i18n="help.section.stats">Stats & leaderboard</a>
+          </h3>
+        </div>
+        <div id="faq-stats" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.stats.what"></div>
+            <div class="faq-item" data-i18n-html="help.stats.leaderboard"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-tech" data-i18n="help.section.tech">Technical</a>
+          </h3>
+        </div>
+        <div id="faq-tech" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.tech.data"></div>
+            <div class="faq-item" data-i18n-html="help.tech.locked"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#faq-accordion" href="#faq-safe" data-i18n="help.section.safe">Safety</a>
+          </h3>
+        </div>
+        <div id="faq-safe" class="panel-collapse collapse">
+          <div class="panel-body">
+            <div class="faq-item" data-i18n-html="help.safe.play"></div>
+            <div class="faq-item" data-i18n-html="help.safe.age"></div>
+            <div class="faq-item" data-i18n-html="help.safe.ssl"></div>
+            <div class="faq-item" data-i18n-html="help.safe.breaks"></div>
+            <div class="tip-box" data-i18n="help.tip">Tip: keep it short and clear.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
