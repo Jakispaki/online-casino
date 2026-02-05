@@ -668,15 +668,18 @@
           messageBox.textContent = data.error;
           return;
         }
-        document.getElementById('balance').textContent = data.balance.toFixed(2);
-        const winText = data.payout > 0 ? `You win $${data.payout.toFixed(2)}` : 'No win this round.';
-        resultBox.style.display = 'block';
-        resultBox.innerHTML = `Winning number: <span class="winning-number">${data.result_number}</span> (${data.result_color}). ${winText}`;
-        const t = window.getTranslation || ((key, fallback) => fallback || key);
-        messageBox.textContent = t('roulette.nextRound', 'Place your bets for the next round.');
+        const revealDelay = 2800;
+        setTimeout(() => {
+          document.getElementById('balance').textContent = data.balance.toFixed(2);
+          const winText = data.payout > 0 ? `You win $${data.payout.toFixed(2)}` : 'No win this round.';
+          resultBox.style.display = 'block';
+          resultBox.innerHTML = `Winning number: <span class="winning-number">${data.result_number}</span> (${data.result_color}). ${winText}`;
+          const t = window.getTranslation || ((key, fallback) => fallback || key);
+          messageBox.textContent = t('roulette.nextRound', 'Place your bets for the next round.');
 
-        highlightWinners(data);
-        pushHistory(data.result_number, data.result_color);
+          highlightWinners(data);
+          pushHistory(data.result_number, data.result_color);
+        }, revealDelay);
       })
       .catch(() => {
         const t = window.getTranslation || ((key, fallback) => fallback || key);
