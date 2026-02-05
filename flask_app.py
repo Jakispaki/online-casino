@@ -240,6 +240,22 @@ def _bonus_xp(user_id):
     return int((row or {}).get("total") or 0)
 
 
+def _award_xp_once(user_id, source, amount):
+    if amount <= 0:
+        return False
+    existing = db_read(
+        "SELECT id FROM xp_rewards WHERE user_id=%s AND source=%s LIMIT 1",
+        (user_id, source),
+        single=True,
+    )
+    if existing:
+        return False
+    return db_write(
+        "INSERT INTO xp_rewards (user_id, amount, source) VALUES (%s, %s, %s)",
+        (user_id, amount, source),
+    )
+
+
 def _xp_and_level(total_games, wins, bonus_xp=0):
     xp = (total_games * 10) + (wins * 50) + bonus_xp
     level = max(1, xp // 500 + 1)
@@ -367,39 +383,49 @@ def stats():
 
     achievements = [
         {
+            "id": "first_win",
             "title_key": "stats.achievement.firstWin.title",
             "title": "First Win",
             "unlocked": first_win,
             "desc_key": "stats.achievement.firstWin.desc",
             "desc": "Win your first hand.",
+            "xp": 100,
         },
         {
+            "id": "first_blackjack",
             "title_key": "stats.achievement.firstBlackjack.title",
             "title": "First Blackjack",
             "unlocked": first_blackjack,
             "desc_key": "stats.achievement.firstBlackjack.desc",
             "desc": "Hit 21 with your first two cards.",
+            "xp": 150,
         },
         {
+            "id": "win_streak_3",
             "title_key": "stats.achievement.winStreak3.title",
             "title": "3 Win Streak",
             "unlocked": max_streak >= 3,
             "desc_key": "stats.achievement.winStreak3.desc",
             "desc": "Win three hands in a row.",
+            "xp": 150,
         },
         {
+            "id": "win_streak_5",
             "title_key": "stats.achievement.winStreak5.title",
             "title": "5 Win Streak",
             "unlocked": max_streak >= 5,
             "desc_key": "stats.achievement.winStreak5.desc",
             "desc": "Win five hands in a row.",
+            "xp": 250,
         },
         {
+            "id": "games_10",
             "title_key": "stats.achievement.games10.title",
             "title": "10 Games Played",
             "unlocked": total_games >= 10,
             "desc_key": "stats.achievement.games10.desc",
             "desc": "Play ten hands.",
+            "xp": 100,
         },
     ]
 
@@ -416,10 +442,6 @@ def stats():
             value = 0
         label = s.get("created_at").strftime("%b %d") if s.get("created_at") else ""
         chart_points.append({"value": value, "label": label, "result": result})
-
-    bonus_xp = _bonus_xp(current_user.id)
-    xp, level = _xp_and_level(total_games, wins, bonus_xp)
-    rank_title = _rank_title(level)
 
     def _range_sessions(start, end):
         return [
@@ -477,24 +499,51 @@ def stats():
 
     challenges = [
         {
+            "id": "play5",
             "title_key": "stats.challenge.play5",
             "title": "Play 5 rounds",
             "target": 5,
             "value": daily_games,
+            "xp": 50,
         },
         {
+            "id": "win2",
             "title_key": "stats.challenge.win2",
             "title": "Win 2 rounds",
             "target": 2,
             "value": daily_wins,
+            "xp": 75,
         },
         {
+            "id": "play10",
             "title_key": "stats.challenge.play10",
             "title": "Play 10 rounds",
             "target": 10,
             "value": daily_games,
+            "xp": 100,
         },
     ]
+
+    for achievement in achievements:
+        if achievement.get("unlocked"):
+            _award_xp_once(
+                current_user.id,
+                f"achievement.{achievement['id']}",
+                achievement.get("xp", 0),
+            )
+
+    daily_key = datetime.utcnow().strftime("%Y-%m-%d")
+    for challenge in challenges:
+        if challenge.get("value", 0) >= challenge.get("target", 0):
+            _award_xp_once(
+                current_user.id,
+                f"daily.{challenge['id']}.{daily_key}",
+                challenge.get("xp", 0),
+            )
+
+    bonus_xp = _bonus_xp(current_user.id)
+    xp, level = _xp_and_level(total_games, wins, bonus_xp)
+    rank_title = _rank_title(level)
 
     # Event challenges (time-limited)
     now = datetime.utcnow()

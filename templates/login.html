@@ -91,6 +91,12 @@
     font-size: 13px;
     color: #b9bfd1;
   }
+  .auth-bonus {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #f0c061;
+    font-weight: 700;
+  }
   .auth-disclaimer {
     margin-top: 20px;
     font-size: 12px;
@@ -108,6 +114,7 @@
 
   <div class="auth-card">
     <h2 data-i18n="login.heading">Login</h2>
+    <p class="auth-bonus" data-i18n="login.bonus">Register and receive 1000 CHF starting balance.</p>
 
     {% if error %}
       <p class="error">{{ error }}</p>
@@ -138,8 +145,8 @@
           required
         >
         <div class="auth-help">
-          <span data-i18n="login.needHelp">Need help?</span>
-          <a class="auth-link" href="#" data-i18n="login.forgot">Forgot password</a>
+          <a class="auth-link" href="{{ url_for('help_page') }}#help-account" data-i18n="login.needHelp">Need help?</a>
+          <a class="auth-link" href="{{ url_for('help_page') }}#help-account" data-i18n="login.forgot">Forgot password</a>
         </div>
       </div>
 

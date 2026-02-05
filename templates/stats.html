@@ -353,7 +353,7 @@
       {% set progress = (c.value / c.target * 100) if c.target > 0 else 0 %}
       <div class="challenge-item">
         <span data-i18n="{{ c.title_key }}">{{ c.title }}</span>
-        <span>{{ c.value }}/{{ c.target }}</span>
+        <span>{{ c.value }}/{{ c.target }} · +{{ c.xp }} XP</span>
       </div>
       <div class="challenge-bar">
         <span data-progress="{{ [progress, 100]|min }}"></span>
@@ -435,6 +435,7 @@
               <span data-i18n="stats.locked">Locked</span>
             {% endif %}
           </div>
+          <div class="badge">+{{ achievement.xp }} XP</div>
         </div>
       {% endfor %}
     </div>

@@ -138,7 +138,7 @@
 
 <div class="settings-wrapper">
   <div class="settings-header">
-    <h1 data-i18n="ui.gameSettings">Game Settings</h1>
+    <h1 data-i18n="settings.blackjackSettings">Blackjack Settings</h1>
     <a class="btn-ghost" data-i18n="ui.backTable" href="{{ url_for('blackjack') }}">Back to table</a>
   </div>
 
@@ -214,7 +214,7 @@
       </div>
       <div class="account-row">
         <label for="account-email" data-i18n="ui.email">Email</label>
-        <input id="account-email" class="form-control" type="email" name="email" value="{{ current_user.email or '' }}">
+        <input id="account-email" class="form-control" type="email" name="email" value="{{ current_user.email or '' }}" readonly>
       </div>
       <div class="account-row">
         <label for="account-current" data-i18n="ui.currentPassword">Current password</label>
