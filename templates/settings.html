@@ -57,7 +57,7 @@
     min-width: 180px;
   }
   .form-control[readonly] {
-    background: #000000;
+    background: #0b1122;
     color: #ffffff;
     opacity: 1;
     cursor: not-allowed;
@@ -221,7 +221,7 @@
       </div>
       <div class="account-row">
         <label for="account-email" data-i18n="ui.email">Email</label>
-        <input id="account-email" class="form-control" type="email" name="email" value="{{ current_user.email or '' }}" readonly>
+        <input id="account-email" class="form-control" type="email" name="email" value="{{ email_value or '' }}" readonly>
       </div>
       <div class="account-row">
         <label for="account-current" data-i18n="ui.currentPassword">Current password</label>

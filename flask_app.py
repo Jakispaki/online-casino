@@ -204,7 +204,11 @@ def settings():
         message = "Username or email already exists."
     elif status == "password":
         message = "Current password is incorrect."
-    return render_template("settings.html", account_status=message)
+    email_value = getattr(current_user, "email", None)
+    if not email_value:
+        row = db_read("SELECT email FROM users WHERE id=%s", (current_user.id,), single=True)
+        email_value = (row or {}).get("email")
+    return render_template("settings.html", account_status=message, email_value=email_value)
 
 
 def _wallet_balance(user_id):
