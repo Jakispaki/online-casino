@@ -1,58 +1,49 @@
-from dotenv import load_dotenv
+# Imports
+import sqlite3
 import os
-from mysql.connector import pooling
+from dotenv import load_dotenv
 
-# Load .env variables
+# Umgebungsvariablen laden
 load_dotenv()
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST"),
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD"),
-    "database": os.getenv("DB_DATABASE")
-}
 
-# Init db
-pool = pooling.MySQLConnectionPool(pool_name="pool", pool_size=5, **DB_CONFIG)
+# Datenbank-Pfad
+DB_PATH = os.path.join(os.path.dirname(__file__), 'casino.db')
+
+# Datenbank-Verbindung herstellen
 def get_conn():
-    return pool.get_connection()
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False, detect_types=sqlite3.PARSE_DECLTYPES)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# DB-Helper
+# Datenbank lesen
 def db_read(sql, params=None, single=False):
     conn = get_conn()
     try:
-        cur = conn.cursor(dictionary=True)
+        sql = sql.replace('%s', '?')
+        cur = conn.cursor()
         cur.execute(sql, params or ())
 
         if single:
-            # liefert EIN Dict oder None
             row = cur.fetchone()
-            return row
+            return dict(row) if row else None
         else:
-            # liefert Liste von Dicts (evtl. [])
             rows = cur.fetchall()
-            return rows
-
+            return [dict(r) for r in rows]
     finally:
-        try:
-            cur.close()
-        except:
-            pass
         conn.close()
 
-
+# Datenbank schreiben
 def db_write(sql, params=None):
     conn = get_conn()
     try:
+        sql = sql.replace('%s', '?')
         cur = conn.cursor()
         cur.execute(sql, params or ())
         conn.commit()
         return True
     except Exception as e:
         conn.rollback()
+        print(f"Datenbank-Fehler: {e}")
         return False
     finally:
-        try:
-            cur.close()
-        except:
-            pass
         conn.close()

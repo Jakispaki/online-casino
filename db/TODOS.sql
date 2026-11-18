@@ -1,79 +1,87 @@
+-- Users
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) UNIQUE,
-    tutorial_seen_blackjack BOOLEAN DEFAULT FALSE,
-    tutorial_seen_roulette BOOLEAN DEFAULT FALSE,
-    password VARCHAR(255) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    email TEXT UNIQUE,
+    tutorial_seen_blackjack INTEGER DEFAULT 0,
+    tutorial_seen_roulette INTEGER DEFAULT 0,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Todos
 CREATE TABLE todos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    content VARCHAR(100),
-    due DATETIME,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    content TEXT,
+    due TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Wallets
 CREATE TABLE wallets (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL UNIQUE,
-    balance DECIMAL(10, 2) DEFAULT 1000.00,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE,
+    balance REAL DEFAULT 1000.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Blackjack Sessions
 CREATE TABLE blackjack_sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    bet DECIMAL(10, 2) NOT NULL,
-    player_hand JSON NOT NULL,
-    dealer_hand JSON NOT NULL,
-    result VARCHAR(50),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    finished BOOLEAN DEFAULT FALSE,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    bet REAL NOT NULL,
+    player_hand TEXT NOT NULL,
+    dealer_hand TEXT NOT NULL,
+    result TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    finished INTEGER DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Transactions
 CREATE TABLE transactions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    type VARCHAR(50),
-    description VARCHAR(255),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    amount REAL NOT NULL,
+    type TEXT,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Roulette Sessions
 CREATE TABLE roulette_sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    bet DECIMAL(10, 2) NOT NULL,
-    bet_type VARCHAR(50) NOT NULL,
-    bet_value VARCHAR(50) NOT NULL,
-    result_number INT NOT NULL,
-    win BOOLEAN DEFAULT FALSE,
-    payout DECIMAL(10, 2) DEFAULT 0.00,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    bet REAL NOT NULL,
+    bet_type TEXT NOT NULL,
+    bet_value TEXT NOT NULL,
+    result_number INTEGER NOT NULL,
+    win INTEGER DEFAULT 0,
+    payout REAL DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- XP Rewards
 CREATE TABLE xp_rewards (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    amount INT NOT NULL,
-    source VARCHAR(50),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    amount INTEGER NOT NULL,
+    source TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Lucky Wheel Spins
 CREATE TABLE lucky_wheel_spins (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    reward_type VARCHAR(20) NOT NULL,
-    reward_value INT DEFAULT 0,
-    cost DECIMAL(10, 2) DEFAULT 0.00,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    reward_type TEXT NOT NULL,
+    reward_value INTEGER DEFAULT 0,
+    cost REAL DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
