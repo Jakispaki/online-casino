@@ -33,6 +33,16 @@ app.secret_key = SECRET_KEY or "supersecret"
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+# --- NEU: Echtes Guthaben für die Navbar laden ---
+@app.context_processor
+def inject_global_balance():
+    if current_user.is_authenticated:
+        wallet = db_read("SELECT balance FROM wallets WHERE user_id=%s", (current_user.id,), single=True)
+        bal = float(wallet["balance"]) if wallet else 0.00
+        return dict(global_balance=bal)
+    return dict(global_balance=0.00)
+# -------------------------------------------------
+
 # DON'T CHANGE
 def is_valid_signature(x_hub_signature, data, private_key):
     if not x_hub_signature or not private_key:

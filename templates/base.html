@@ -31,7 +31,7 @@
             {% if current_user.is_authenticated %}
                 <!-- Das Guthaben wird später dynamisch geladen, wir zeigen vorerst einen Platzhalter -->
                 <div class="balance-pill" id="nav-balance">
-                    $ 1000.00
+                    ${{ "%.2f"|format(global_balance) }}
                 </div>
                 <a href="{{ url_for('deposit') }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">Einzahlen</a>
                 <a href="{{ url_for('settings') }}" style="color: var(--text-main); font-size: 20px;">⚙️</a>
