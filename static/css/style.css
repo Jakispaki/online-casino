@@ -1,0 +1,212 @@
+/* static/css/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+    /* Farbpalette */
+    --bg-dark: #05070d;
+    --bg-gradient: radial-gradient(circle at top, #0b1224, #05070d 55%, #030407 100%);
+    --card-bg: rgba(15, 22, 43, 0.7);
+    --card-border: rgba(255, 215, 130, 0.2);
+    --gold: #f0c061;
+    --gold-hover: #ffd88b;
+    --gold-gradient: linear-gradient(135deg, #d8a748, #b9801f);
+    --text-main: #e8e8e8;
+    --text-muted: #9aa2ba;
+    --green-felt: #0b1b14;
+    --red-suit: #b31313;
+    --danger: #ff6b6b;
+    --success: #2d8f5c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1, h2, h3, h4, .brand-font {
+    font-family: 'Playfair Display', serif;
+    letter-spacing: 0.5px;
+}
+
+a { text-decoration: none; color: var(--gold); transition: 0.2s; }
+a:hover { color: var(--gold-hover); }
+
+/* --- NAVBAR --- */
+.navbar {
+    background: rgba(11, 17, 34, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--card-border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.nav-links a:hover { color: var(--gold); }
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.balance-pill {
+    background: #0b1122;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+    box-shadow: 0 0 15px rgba(240, 192, 97, 0.15);
+}
+
+/* --- CONTAINER & CARDS --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    flex: 1;
+}
+
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* --- BUTTONS --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--gold-gradient);
+    color: #111;
+    box-shadow: 0 4px 15px rgba(216, 167, 72, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #f0c061, #c98e29);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(216, 167, 72, 0.5);
+    color: #111;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+}
+.btn-outline:hover { background: rgba(240, 192, 97, 0.1); }
+
+.btn-danger { background: var(--danger); color: #fff; }
+
+/* --- FORMS --- */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 600; font-size: 13px; }
+.form-control {
+    width: 100%;
+    background: #0b1122;
+    border: 1px solid #28314e;
+    color: var(--text-main);
+    border-radius: 10px;
+    padding: 12px;
+    font-family: 'Inter', sans-serif;
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(216, 167, 72, 0.2);
+}
+
+/* --- LOBBY GRID --- */
+.lobby-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.game-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    border-color: var(--gold);
+}
+
+.game-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.game-content { padding: 20px; text-align: center; flex: 1; display: flex; flex-direction: column; }
+.game-content h3 { margin-bottom: 10px; font-size: 22px; }
+.game-content p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; flex: 1; }
+
+.game-card.coming-soon { opacity: 0.6; pointer-events: none; }
+.coming-soon-badge {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: var(--gold);
+    color: #111;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 12px;
+    z-index: 10;
+}

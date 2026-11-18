@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-top: 20px; margin-bottom: 40px;">
+    <h1 class="brand-font" style="font-size: 48px; color: var(--gold); margin-bottom: 10px;">Willkommen im Royal Ace</h1>
+    <p style="color: var(--text-muted); font-size: 18px;">Wähle deinen Tisch und viel Glück.</p>
+</div>
+
+<div class="lobby-grid">
+    <!-- Blackjack Karte -->
+    <div class="game-card">
+        <div class="game-image" style="background: linear-gradient(135deg, #1f3b2c, #0b1b14);"></div>
+        <div class="game-content">
+            <h3>Blackjack</h3>
+            <p>Komm so nah wie möglich an 21 heran und schlage den Dealer.</p>
+            <a href="{{ url_for('blackjack') }}" class="btn btn-primary">Jetzt Spielen</a>
+        </div>
+    </div>
+
+    <!-- Roulette Karte -->
+    <div class="game-card">
+        <div class="game-image" style="background: linear-gradient(135deg, #4e1b1f, #241011);"></div>
+        <div class="game-content">
+            <h3>Roulette</h3>
+            <p>Setze auf Rot, Schwarz oder eine Zahl und dreh das Rad.</p>
+            <a href="{{ url_for('roulette') }}" class="btn btn-primary">Jetzt Spielen</a>
+        </div>
+    </div>
+
+    <!-- Lucky Wheel Karte -->
+    <div class="game-card">
+        <div class="game-image" style="background: linear-gradient(135deg, #23345d, #0b1224);"></div>
+        <div class="game-content">
+            <h3>Lucky Wheel</h3>
+            <p>Drehe das tägliche Glücksrad für gratis Guthaben und XP.</p>
+            <a href="{{ url_for('lucky_wheel') }}" class="btn btn-primary">Jetzt Spielen</a>
+        </div>
+    </div>
+
+    <!-- Coming Soon: Slot -->
+    <div class="game-card coming-soon">
+        <span class="coming-soon-badge">Bald verfügbar</span>
+        <div class="game-image" style="background: #1a1f2f;"></div>
+        <div class="game-content">
+            <h3>Slot-Maschine</h3>
+            <p>Dreh die Walzen und knacke den Jackpot.</p>
+            <button class="btn btn-outline" disabled>In Entwicklung</button>
+        </div>
+    </div>
+
+    <!-- Coming Soon: Plinko -->
+    <div class="game-card coming-soon">
+        <span class="coming-soon-badge">Bald verfügbar</span>
+        <div class="game-image" style="background: #1a1f2f;"></div>
+        <div class="game-content">
+            <h3>Plinko</h3>
+            <p>Lass den Ball fallen und hoffe auf die 100x Multiplikator.</p>
+            <button class="btn btn-outline" disabled>In Entwicklung</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

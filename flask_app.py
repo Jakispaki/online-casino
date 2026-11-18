@@ -71,7 +71,7 @@ def login():
 
         if user:
             login_user(user)
-            return redirect(url_for("blackjack"))
+            return redirect(url_for("index"))
 
         error = "Benutzername oder Passwort ist falsch."
 
@@ -135,8 +135,8 @@ def logout():
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    """Redirect to blackjack"""
-    return redirect(url_for("blackjack"))
+    """Show the Lobby"""
+    return render_template("index.html")
 
 
 # Blackjack routes
